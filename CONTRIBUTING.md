@@ -22,7 +22,7 @@ Clarity is an ADHD-friendly project management tool designed specifically for de
 
 1. **Fork the repository**
    ```bash
-   git clone https://github.com/yourusername/clarity.git
+   git clone https://github.com/farajabien/clarity.git
    cd clarity
    ```
 

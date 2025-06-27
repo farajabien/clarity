@@ -30,7 +30,7 @@ Clarity is a specialized project management webapp designed specifically for dev
 
 ## 🚀 Live Demo
 
-**Try Clarity right now:** [https://clarity-demo.vercel.app](https://clarity-demo.vercel.app)
+**Try Clarity right now:** [https://clarity.fbien.com/](https://clarity.fbien.com/)
 
 ## 🛠 Tech Stack
 
@@ -51,7 +51,7 @@ Clarity is a specialized project management webapp designed specifically for dev
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/clarity.git
+   git clone https://github.com/farajabien/clarity.git
    cd clarity
    ```
 
@@ -184,8 +184,8 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 If you find a bug or have a feature request, please [open an issue](../../issues) on GitHub.
 
 For support or questions:
-- 📧 Email: [your-email@example.com]
-- 🐦 Twitter: [@yourusername]
+- 📧 Email: [hello@fbien.com]
+- 🐦 Twitter: [@farajabien]
 - 💬 Discord: [Join our community]
 
 ## 📄 License
