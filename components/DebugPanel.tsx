@@ -81,7 +81,7 @@ export function DebugPanel() {
               onClick={handleCopySlug} 
               size="sm" 
               variant="outline"
-              className="text-xs"
+              className="text-xs text-primary"
             >
               Copy URL
             </Button>
@@ -92,7 +92,7 @@ export function DebugPanel() {
               onClick={handleExportDebug} 
               size="sm" 
               variant="outline"
-              className="text-xs"
+              className="text-xs text-primary"
             >
               Export Debug
             </Button>

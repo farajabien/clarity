@@ -25,9 +25,9 @@ import {
 } from '@/lib/types/clarity.types';
 
 import {
-  sendOnDemandReport, 
-  sendProjectUpdate, 
-  sendUrgentTaskAlert 
+  sendOnDemandReport
+  // sendProjectUpdate, 
+  // sendUrgentTaskAlert 
 } from '@/app/actions/resend';
 
 import {
@@ -51,7 +51,7 @@ export function useClarityStore() {
       compress: true,   // ✅ Keep URLs manageable (60-80% reduction)
       offline: {        // ✅ ADHD-friendly offline storage 
         storage: 'indexeddb',
-        encryption: true,      // 🔒 Encrypt sensitive project data
+        encryption: false,     // 🔓 Disable encryption for easier testing
         ttl: 86400 * 30       // 30 days cache
       },
       db: {             // ✅ Database sync for cross-device persistence
@@ -85,14 +85,14 @@ export function useClarityStore() {
       }
     }));
 
-    // 📧 Auto-send project creation notification for client projects
-    if (newProject.category === 'client') {
-      try {
-        await sendProjectUpdate(newProject, []);
-      } catch (error) {
-        console.warn('Failed to send project creation email:', error);
-      }
-    }
+    // 📧 Auto-send project creation notification for client projects (disabled for testing)
+    // if (newProject.category === 'client') {
+    //   try {
+    //     await sendProjectUpdate(newProject, []);
+    //   } catch (error) {
+    //     console.warn('Failed to send project creation email:', error);
+    //   }
+    // }
     
     return newProject;
   }, [setState]);
@@ -121,17 +121,17 @@ export function useClarityStore() {
       };
     });
 
-    // 📧 Send update notifications on major milestones
-    if (updates.status === 'completed' || (updates.progress && updates.progress >= 100)) {
-      try {
-        await sendProjectUpdate(updatedProject, state.todos);
-      } catch (error) {
-        console.warn('Failed to send project completion email:', error);
-      }
-    }
+    // 📧 Send update notifications on major milestones (disabled for testing)
+    // if (updates.status === 'completed' || (updates.progress && updates.progress >= 100)) {
+    //   try {
+    //     await sendProjectUpdate(updatedProject, state.todos);
+    //   } catch (error) {
+    //     console.warn('Failed to send project completion email:', error);
+    //   }
+    // }
     
     return updatedProject;
-  }, [state.projects, state.todos, setState]);
+  }, [state.projects, setState]);
 
   const deleteProject = useCallback(async (id: string): Promise<boolean> => {
     const projectExists = state.projects.some((p: Project) => p.id === id);
@@ -168,17 +168,17 @@ export function useClarityStore() {
       todos: [...prev.todos, newTodo],
     }));
 
-    // 🚨 Auto-alert on urgent todos
-    if (newTodo.priority === 'urgent') {
-      try {
-        await sendUrgentTaskAlert([newTodo], state.projects);
-      } catch (error) {
-        console.warn('Failed to send urgent task alert:', error);
-      }
-    }
+    // 🚨 Auto-alert on urgent todos (disabled for testing)
+    // if (newTodo.priority === 'urgent') {
+    //   try {
+    //     await sendUrgentTaskAlert([newTodo], state.projects);
+    //   } catch (error) {
+    //     console.warn('Failed to send urgent task alert:', error);
+    //   }
+    // }
     
     return newTodo;
-  }, [setState, state.projects]);
+  }, [setState]);
 
   const updateTodo = useCallback(async (id: string, updates: Partial<Todo>): Promise<Todo | null> => {
     const todoIndex = state.todos.findIndex((t: Todo) => t.id === id);

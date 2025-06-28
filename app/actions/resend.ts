@@ -208,7 +208,7 @@ function generateProjectUpdateHTML(project: Project, todos: Todo[]): string {
 
 export async function sendDailySummary(context: EmailContext): Promise<boolean> {
   try {
-    const { userEmail = 'faraj@biencodes.com' } = context;
+    const { userEmail = 'hello@fbien.com' } = context;
     
     const { data, error } = await resend.emails.send({
       from: 'Clarity <noreply-clarity@mail.fbien.com>',
@@ -233,11 +233,11 @@ export async function sendDailySummary(context: EmailContext): Promise<boolean> 
 export async function sendProjectUpdate(
   project: Project, 
   todos: Todo[], 
-  userEmail: string = 'faraj@biencodes.com'
+  userEmail: string = 'hello@fbien.com'
 ): Promise<boolean> {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Clarity <noreply@clarity.biencodes.com>',
+      from: 'Clarity <noreply@mail.fbien.com>',
       to: [userEmail],
       subject: `📋 Project Update: ${project.title}`,
       html: generateProjectUpdateHTML(project, todos),
@@ -259,7 +259,7 @@ export async function sendProjectUpdate(
 export async function sendUrgentTaskAlert(
   todos: Todo[], 
   projects: Project[], 
-  userEmail: string = 'faraj@biencodes.com'
+  userEmail: string = 'hello@fbien.com'
 ): Promise<boolean> {
   try {
     const urgentTodos = todos.filter(t => t.priority === 'urgent' && t.status !== 'completed');
@@ -267,7 +267,7 @@ export async function sendUrgentTaskAlert(
     if (urgentTodos.length === 0) return true;
 
     const { data, error } = await resend.emails.send({
-      from: 'Clarity <noreply@clarity.biencodes.com>',
+      from: 'Clarity <noreply@mail.fbien.com>',
       to: [userEmail],
       subject: `🚨 ${urgentTodos.length} Urgent Task${urgentTodos.length > 1 ? 's' : ''} Need Attention`,
       html: `
@@ -313,7 +313,7 @@ export async function scheduleDailyEmail(appState: AppState): Promise<boolean> {
 
 export async function sendOnDemandReport(
   appState: AppState, 
-  userEmail: string = 'faraj@biencodes.com'
+  userEmail: string = 'hello@fbien.com'
 ): Promise<boolean> {
   const context: EmailContext = {
     projects: appState.projects,
