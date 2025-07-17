@@ -1,102 +1,255 @@
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Calendar, 
+  CheckSquare, 
+  FocusIcon, 
+  LayoutGrid, 
+  Timer, 
+  Zap,
+  ArrowRight,
+  Target,
+  BarChart3,
+  Settings
+} from "lucide-react";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <FocusIcon className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold">Clarity</span>
+          </div>
+          <Button asChild>
+            <Link href="/today">Get Started</Link>
+          </Button>
+        </nav>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-4xl mx-auto">
+          <Badge variant="secondary" className="mb-4">
+            Productivity & Focus Management
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Achieve Crystal Clear
+            <br />
+            Productivity
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Organize your projects, track your todos, and maintain laser focus with Pomodoro sessions. 
+            Everything you need to stay productive and achieve your goals.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button size="lg" asChild>
+              <Link href="/today">
+                Start Today <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/demo">
+                View Demo
+              </Link>
+            </Button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </section>
+
+      {/* Features Grid */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Everything You Need to Stay Focused</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Clarity combines project management, task tracking, and focus techniques into one seamless experience.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          {/* Today View */}
+          <Card className="group hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <CardTitle>Daily Focus</CardTitle>
+              <CardDescription>
+                Start each day with a clear view of your priorities and tasks
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Priority-based task organization</li>
+                <li>• Daily review and planning</li>
+                <li>• Progress tracking</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Project Management */}
+          <Card className="group hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                <LayoutGrid className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <CardTitle>Project Organization</CardTitle>
+              <CardDescription>
+                Manage work, client, and personal projects with ease
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Categorized project views</li>
+                <li>• Budget and time tracking</li>
+                <li>• Resource management</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Todo Management */}
+          <Card className="group hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
+                <CheckSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <CardTitle>Smart Task Management</CardTitle>
+              <CardDescription>
+                Advanced todo system with energy levels and priorities
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Energy-based task matching</li>
+                <li>• Bulk actions and filtering</li>
+                <li>• Due date management</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Focus Sessions */}
+          <Card className="group hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
+                <Timer className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <CardTitle>Pomodoro Focus</CardTitle>
+              <CardDescription>
+                Maintain deep focus with structured work sessions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Customizable timer sessions</li>
+                <li>• Multi-task focus blocks</li>
+                <li>• Session analytics</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Analytics */}
+          <Card className="group hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-lg flex items-center justify-center mb-4">
+                <BarChart3 className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+              </div>
+              <CardTitle>Progress Insights</CardTitle>
+              <CardDescription>
+                Track your productivity patterns and achievements
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Session history tracking</li>
+                <li>• Productivity metrics</li>
+                <li>• Goal achievement stats</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Settings */}
+          <Card className="group hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
+                <Settings className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <CardTitle>Personalization</CardTitle>
+              <CardDescription>
+                Customize your experience with themes and accessibility options
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Dark/light theme support</li>
+                <li>• Accessibility features</li>
+                <li>• Sync preferences</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center">
+          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
+            <CardHeader>
+              <CardTitle className="text-2xl">Ready to Get Started?</CardTitle>
+              <CardDescription className="text-lg">
+                Join thousands of professionals who have transformed their productivity with Clarity
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-center gap-4">
+                <Button size="lg" asChild>
+                  <Link href="/today">
+                    Start Your Journey <Target className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/focus">
+                    Try Focus Mode <Zap className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                No signup required • Start organizing immediately
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-white/50 dark:bg-gray-950/50 backdrop-blur">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
+                <FocusIcon className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-semibold">Clarity</span>
+              <Separator orientation="vertical" className="h-4" />
+              <span className="text-sm text-muted-foreground">Productivity Redefined</span>
+            </div>
+            <div className="flex gap-6 text-sm text-muted-foreground">
+              <Link href="/today" className="hover:text-foreground transition-colors">
+                Dashboard
+              </Link>
+              <Link href="/focus" className="hover:text-foreground transition-colors">
+                Focus Mode
+              </Link>
+              <Link href="/settings" className="hover:text-foreground transition-colors">
+                Settings
+              </Link>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
