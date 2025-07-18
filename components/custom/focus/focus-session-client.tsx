@@ -34,6 +34,7 @@ import { SessionTracker } from "./session-tracker";
 import { SessionSummaryDialog } from "./session-summary-dialog";
 import { SessionCreationForm } from "./session-creation-form";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
+
 interface FocusSession {
   id: string;
   name: string;
@@ -121,7 +122,9 @@ export function FocusSessionClient() {
 
   const handlePauseSession = (session: FocusSession) => {
     setActiveFocusSession(null);
+  };
 
+  const handleCompleteSession = (session: FocusSession) => {
     const completedSession = {
       ...session,
       status: "completed" as const,
@@ -159,27 +162,6 @@ export function FocusSessionClient() {
     
     setShowNewSessionDialog(false);
     handleStartSession(newSession);
-  };
-
-  const handleCompleteSession = (session: FocusSession) => {
-    const completedSession = {
-      ...session,
-      status: "completed" as const,
-      endTime: new Date().toISOString(),
-      completedPomodoros: session.totalPomodoros,
-    };
-    
-    setActiveFocusSession(null);
-    setSelectedSession(completedSession);
-    setShowSummaryDialog(true);
-    
-    // Save completed session to store
-    addSession({
-      tasks: session.tasks,
-      startTime: session.startTime || new Date().toISOString(),
-      endTime: new Date().toISOString(),
-      actualMinutes: session.totalPomodoros * session.duration,
-    });
   };
 
   const getStatusColor = (status: FocusSession["status"]) => {

@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
 
 export function DailyReviewModal() {
-  const { todos, setDailyReview, isHydrated } = useHydratedStore();
+  const { todos, isHydrated } = useHydratedStore();
 
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
