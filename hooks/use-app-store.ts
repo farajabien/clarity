@@ -404,57 +404,8 @@ export const useSyncActions = () => {
     }
   };
   
-  const syncFromCloud = async (userId?: string, conflictResolution: ConflictResolution = ConflictResolution.REMOTE_WINS) => {
-    if (!userId) {
-      console.warn('Cannot sync without user ID');
-      return;
-    }
-    
-    try {
-      store.markSyncInProgress(true);
-      
-      const snapshot = await SyncService.pullSnapshot(userId);
-      
-      if (snapshot) {
-        // Check for conflicts
-        const localTimestamp = store.lastSync;
-        const remoteTimestamp = snapshot.lastSync;
-        
-        if (localTimestamp && remoteTimestamp && localTimestamp > remoteTimestamp) {
-          console.log('Local data is newer, checking conflict resolution strategy');
-          
-          if (conflictResolution === ConflictResolution.LOCAL_WINS) {
-            console.log('Keeping local data');
-            return;
-          }
-        }
-        
-        store.loadFromSnapshot(snapshot.state);
-        console.log('Successfully synced from cloud');
-      } else {
-        console.log('No remote snapshot found');
-      }
-    } catch (error) {
-      console.error('Sync from cloud failed:', error);
-      throw error;
-    } finally {
-      store.markSyncInProgress(false);
-    }
-  };
   
-  const autoSync = async (userId?: string) => {
-    if (!userId || !store.isOnline) return;
-    
-    try {
-      // First try to pull latest changes
-      await syncFromCloud(userId, ConflictResolution.NEWEST_WINS);
-      
-      // Then push local changes
-      await syncToCloud(userId);
-    } catch (error) {
-      console.error('Auto sync failed:', error);
-    }
-  };
+
   
   const initializeNetworkListener = () => {
     return onNetworkChange((online) => {
@@ -469,8 +420,6 @@ export const useSyncActions = () => {
   
   return {
     syncToCloud,
-    syncFromCloud,
-    autoSync,
     initializeNetworkListener,
     isOnline: store.isOnline,
     lastSync: store.lastSync,

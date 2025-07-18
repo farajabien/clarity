@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,13 @@ import { Search, Filter, Plus } from "lucide-react";
 import { ProjectCard } from "./project-card";
 import { AddProjectDialog } from "@/components/layout/add-project-dialog";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
-import type { Project } from "@/lib/types";
 
 interface ProjectGridProps {
   category: "work" | "client" | "personal";
 }
 
 export function ProjectGrid({ category }: ProjectGridProps) {
-  const { projects, isHydrated, updateProject } = useHydratedStore();
+  const { projects, isHydrated } = useHydratedStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");

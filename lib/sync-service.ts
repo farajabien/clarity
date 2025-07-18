@@ -30,23 +30,6 @@ export class SyncService {
       throw error;
     }
   }
-
-  static async pullSnapshot(userId: string): Promise<SyncSnapshot | null> {
-    // This method is deprecated - use useSyncManager hook instead
-    console.warn('pullSnapshot is deprecated. Use useSyncManager hook for querying data.');
-    return null;
-  }
-
-  static async getLastSyncTime(userId: string): Promise<string | null> {
-    // This method is deprecated - use useSyncManager hook instead
-    console.warn('getLastSyncTime is deprecated. Use useSyncManager hook for querying data.');
-    return null;
-  }
-
-  static async deleteSnapshot(userId: string): Promise<void> {
-    // This method is deprecated - use useSyncManager hook instead
-    console.warn('deleteSnapshot is deprecated. Use useSyncManager hook for data operations.');
-  }
 }
 
 // Network status utilities
