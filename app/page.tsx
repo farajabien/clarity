@@ -55,11 +55,7 @@ export default function HomePage() {
                 Start Today <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/demo">
-                View Demo
-              </Link>
-            </Button>
+          
           </div>
         </div>
       </section>
