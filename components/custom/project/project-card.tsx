@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { 
@@ -18,14 +19,21 @@ import {
   DollarSign,
   Play,
   Pause,
-  CheckCircle
+  CheckCircle,
+  ExternalLink,
+  Edit,
+  Archive,
+  Trash2,
+  Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Project } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import { toast } from "sonner";
 
 interface ProjectCardProps {
   project: Project;
-  onUpdate: (updates: Partial<Project>) => void;
 }
 
 const statusColors = {
@@ -42,7 +50,32 @@ const priorityColors = {
   high: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
 };
 
-export function ProjectCard({ project, onUpdate }: ProjectCardProps) {
+export function ProjectCard({ project }: ProjectCardProps) {
+  const router = useRouter();
+  const { todos, updateProject, deleteProject, archiveProject, isHydrated } = useHydratedStore();
+  
+  // Don't render until hydrated to avoid SSR issues
+  if (!isHydrated) {
+    return (
+      <Card className="hover:shadow-lg transition-shadow duration-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1 flex-1">
+              <div className="h-5 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4"></div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="h-2 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -57,29 +90,62 @@ export function ProjectCard({ project, onUpdate }: ProjectCardProps) {
 
   const isOverdue = project?.dueDate && new Date(project.dueDate) < new Date();
 
+  // Calculate project progress based on todos
+  const projectTodos = Object.values(todos).filter(todo => todo.projectId === project.id);
+  const completedTodos = projectTodos.filter(todo => todo.completed);
+  const actualProgress = projectTodos.length > 0 ? Math.round((completedTodos.length / projectTodos.length) * 100) : 0;
+
   const handleStatusChange = (newStatus: Project["status"]) => {
-    let newProgress = project?.progress;
+    let newProgress = actualProgress;
   
     // Auto-adjust progress based on status
     switch (newStatus) {
       case "planning":
-        newProgress = Math.min(project.progress, 25);
+        newProgress = Math.min(actualProgress, 25);
         break;
       case "in-progress":
-        newProgress = Math.max(project.progress, 25);
+        newProgress = Math.max(actualProgress, 25);
         break;
       case "review":
-        newProgress = Math.max(project.progress, 75);
+        newProgress = Math.max(actualProgress, 75);
         break;
       case "completed":
         newProgress = 100;
         break;
     }
     
-    onUpdate({ status: newStatus, progress: newProgress });
+    updateProject(project.id, { status: newStatus, progress: newProgress });
+    toast.success(`Project status updated to ${newStatus.replace('-', ' ')}`);
   };
 
-if (!project) {
+  const handleViewDetails = () => {
+    router.push(`/project/${project.id}`);
+  };
+
+  const handleEdit = () => {
+    // TODO: Open edit dialog
+    toast.info("Edit functionality coming soon");
+  };
+
+  const handleArchive = () => {
+    archiveProject(project.id);
+    toast.success("Project archived");
+  };
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this project? This action cannot be undone.")) {
+      deleteProject(project.id);
+      toast.success("Project deleted");
+    }
+  };
+
+  const handleDeployLinkOpen = () => {
+    if (project.deployLink) {
+      window.open(project.deployLink, '_blank');
+    }
+  };
+
+  if (!project) {
     return null; // Handle case where project data is not available
   }
 
@@ -122,20 +188,50 @@ if (!project) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleStatusChange("in-progress")}>
+              <DropdownMenuItem onClick={handleViewDetails}>
+                <Eye className="w-4 h-4 mr-2" />
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => handleStatusChange("in-progress")}
+                disabled={project.status === "completed"}
+              >
                 <Play className="w-4 h-4 mr-2" />
                 Start Working
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange("on-hold")}>
+              <DropdownMenuItem 
+                onClick={() => handleStatusChange("on-hold")}
+                disabled={project.status === "completed"}
+              >
                 <Pause className="w-4 h-4 mr-2" />
                 Put On Hold
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
+              <DropdownMenuItem 
+                onClick={() => handleStatusChange("completed")}
+                disabled={project.status === "completed"}
+              >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Mark Complete
               </DropdownMenuItem>
-              <DropdownMenuItem>Edit Project</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleEdit}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Project
+              </DropdownMenuItem>
+              {project.deployLink && (
+                <DropdownMenuItem onClick={handleDeployLinkOpen}>
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Open Deploy Link
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleArchive}>
+                <Archive className="w-4 h-4 mr-2" />
+                Archive Project
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
                 Delete Project
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -151,10 +247,15 @@ if (!project) {
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Progress</span>
-            <span className="font-medium">{project.progress}%</span>
+            <span>Progress ({projectTodos.length} tasks)</span>
+            <span className="font-medium">{actualProgress}%</span>
           </div>
-          <Progress value={project.progress} className="h-2" />
+          <Progress value={actualProgress} className="h-2" />
+          {projectTodos.length > 0 && (
+            <div className="text-xs text-muted-foreground">
+              {completedTodos.length} of {projectTodos.length} tasks completed
+            </div>
+          )}
         </div>
         
         {/* Project Info */}
@@ -212,10 +313,19 @@ if (!project) {
           <Button 
             size="sm" 
             variant="outline"
-            onClick={() => console.log("View details:", project.id)}
+            onClick={handleViewDetails}
           >
             Details
           </Button>
+          {project.deployLink && (
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={handleDeployLinkOpen}
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

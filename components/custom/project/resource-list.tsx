@@ -35,6 +35,7 @@ import {
   Download,
   MoreHorizontal
 } from "lucide-react";
+import { useAppStore } from "@/hooks/use-app-store";
 
 interface Resource {
   id: string;
@@ -47,44 +48,29 @@ interface Resource {
   dateAdded: string;
 }
 
-// Mock data
-const mockResources: Resource[] = [
-  {
-    id: "1",
-    title: "API Documentation",
-    url: "https://api.example.com/docs",
-    type: "link",
-    description: "Complete API reference for the e-commerce platform",
-    tags: ["api", "documentation", "reference"],
-    dateAdded: "2025-07-15",
-  },
-  {
-    id: "2",
-    title: "Design Mockups",
-    url: "/files/mockups.figma",
-    type: "document",
-    description: "UI/UX designs for the new dashboard",
-    tags: ["design", "ui", "mockups"],
-    dateAdded: "2025-07-14",
-  },
-  {
-    id: "3",
-    title: "Brand Guidelines",
-    url: "/files/brand-guide.pdf",
-    type: "document",
-    description: "Client's brand guidelines and assets",
-    tags: ["brand", "guidelines", "assets"],
-    dateAdded: "2025-07-12",
-  },
-];
-
 interface ResourceListProps {
   projectId?: string;
   category?: "work" | "client" | "personal";
 }
 
 export function ResourceList({ projectId }: ResourceListProps) {
-  const [resources, setResources] = useState<Resource[]>(mockResources);
+  const { resources: storeResources, addResource } = useAppStore((state) => ({
+    resources: state.resources,
+    addResource: state.addResource
+  }));
+
+  // Convert store resources to display format
+  const resources = Object.values(storeResources).map(resource => ({
+    id: resource.id,
+    title: resource.title,
+    url: resource.link,
+    type: "link" as const,
+    description: "",
+    tags: [],
+    dateAdded: resource.createdAt.split('T')[0],
+    projectId: resource.projectId
+  }));
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [newResource, setNewResource] = useState({
     title: "",
@@ -151,7 +137,14 @@ export function ResourceList({ projectId }: ResourceListProps) {
       dateAdded: new Date().toISOString().split('T')[0],
     };
 
-    setResources([...resources, resource]);
+    // Add to store instead of local state
+    addResource({
+      projectId: projectId || "",
+      title: resource.title,
+      link: resource.url,
+      type: resource.description,
+    });
+    
     setNewResource({
       title: "",
       url: "",

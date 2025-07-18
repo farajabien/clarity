@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -20,14 +21,18 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, X } from "lucide-react";
+import { useAppStore } from "@/hooks/use-app-store";
+import { toast } from "sonner";
+import type { Project } from "@/lib/types";
 
-interface Project {
+// Form data interface - only the fields we need to collect
+interface ProjectFormData {
   title: string;
   description: string;
-  status: "planning" | "in-progress" | "review" | "completed" | "on-hold";
-  priority: "low" | "medium" | "high";
+  status: Project["status"];
+  priority: Project["priority"];
   progress: number;
-  dueDate?: string;
+  dueDate: string;
   tags: string[];
   budget?: number;
   timeSpent: number;
@@ -37,17 +42,21 @@ interface Project {
 interface QuickAddProjectFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (project: Project) => void;
   category: "work" | "client" | "personal";
 }
 
 export function QuickAddProjectForm({ 
   open, 
   onOpenChange, 
-  onSubmit, 
   category 
 }: QuickAddProjectFormProps) {
-  const [formData, setFormData] = useState<Project>({
+  const router = useRouter();
+  const { addProject, addTodo } = useAppStore((state) => ({
+    addProject: state.addProject,
+    addTodo: state.addTodo,
+  }));
+  
+  const [formData, setFormData] = useState<ProjectFormData>({
     title: "",
     description: "",
     status: "planning",
@@ -83,26 +92,60 @@ export function QuickAddProjectForm({
     e.preventDefault();
     if (!formData.title.trim()) return;
 
-    onSubmit({
-      ...formData,
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-    });
+    try {
+      // Convert form data to the format expected by addProject
+      const projectData = {
+        title: formData.title.trim(),
+        desc: formData.description.trim(),
+        description: formData.description.trim(),
+        priority: formData.priority,
+        status: formData.status,
+        category: category,
+        progress: formData.progress,
+        dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
+        tags: formData.tags,
+        budget: formData.budget,
+        timeSpent: formData.timeSpent,
+        estimatedTime: formData.estimatedTime,
+      };
 
-    // Reset form
-    setFormData({
-      title: "",
-      description: "",
-      status: "planning",
-      priority: "medium",
-      progress: 0,
-      dueDate: "",
-      tags: [],
-      budget: category === "client" ? 0 : undefined,
-      timeSpent: 0,
-      estimatedTime: 40,
-    });
-    setTagInput("");
+      const projectId = addProject(projectData);
+      
+      // Add default "Components List" todo
+      addTodo({
+        projectId: projectId,
+        text: "Components List - Create a comprehensive list of all components needed for this project",
+        priority: 3, // Medium priority
+        energyLevel: 2, // Low energy required for planning
+        completed: false,
+        todayTag: false,
+      });
+      
+      toast.success(`${getCategoryTitle()} created successfully!`);
+      
+      // Reset form
+      setFormData({
+        title: "",
+        description: "",
+        status: "planning",
+        priority: "medium",
+        progress: 0,
+        dueDate: "",
+        tags: [],
+        budget: category === "client" ? 0 : undefined,
+        timeSpent: 0,
+        estimatedTime: 40,
+      });
+      setTagInput("");
+      onOpenChange(false);
+      
+      // Redirect to project details page
+      router.push(`/project/${projectId}`);
+      
+    } catch (error) {
+      toast.error("Failed to create project");
+      console.error("Error creating project:", error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

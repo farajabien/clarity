@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useMemo } from "react";
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { 
   Select,
   SelectContent,
   SelectItem,
@@ -11,329 +16,299 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  Plus, 
-  X, 
+  Search, 
   Clock, 
   Target,
-  CheckSquare,
-  Coffee
+  Play,
+  Plus
 } from "lucide-react";
-
-// Mock tasks from projects and todos
-const mockAvailableTasks = [
-  { id: "1", title: "Fix authentication bug", type: "todo", project: "E-commerce Platform" },
-  { id: "2", title: "Update API documentation", type: "todo", project: "E-commerce Platform" },
-  { id: "3", title: "Code review - payment module", type: "todo", project: "E-commerce Platform" },
-  { id: "4", title: "Design mobile wireframes", type: "project", project: "Mobile App" },
-  { id: "5", title: "Client feedback implementation", type: "project", project: "Dashboard" },
-  { id: "6", title: "Database optimization", type: "todo", project: "Backend API" },
-  { id: "7", title: "Unit tests for user service", type: "todo", project: "Backend API" },
-  { id: "8", title: "UI component documentation", type: "project", project: "Design System" },
-];
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import { format, isToday, isBefore } from "date-fns";
 
 interface MultiTaskSelectorProps {
-  onSubmit: (sessionData: {
-    name: string;
-    tasks: string[];
-    duration: number;
-    breakDuration: number;
-    totalPomodoros: number;
-  }) => void;
+  onTasksSelected?: (todoIds: string[]) => void;
+  maxTasks?: number;
+  selectedTasks?: string[];
 }
 
-export function MultiTaskSelector({ onSubmit }: MultiTaskSelectorProps) {
-  const [sessionName, setSessionName] = useState("");
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
-  const [customTask, setCustomTask] = useState("");
-  const [duration, setDuration] = useState(25);
-  const [breakDuration, setBreakDuration] = useState(5);
-  const [totalPomodoros, setTotalPomodoros] = useState(4);
-  const [filterProject, setFilterProject] = useState<string>("all");
-  const [filterType, setFilterType] = useState<string>("all");
+export function MultiTaskSelector({ 
+  onTasksSelected, 
+  maxTasks = 5,
+  selectedTasks = []
+}: MultiTaskSelectorProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [localSelectedTasks, setLocalSelectedTasks] = useState<string[]>(selectedTasks);
 
-  const availableTasks = mockAvailableTasks.filter(task => {
-    const matchesProject = filterProject === "all" || task.project === filterProject;
-    const matchesType = filterType === "all" || task.type === filterType;
-    return matchesProject && matchesType;
-  });
+  // Get data from store
+  const { todos, projects, isHydrated } = useHydratedStore();
+  
+  // Get available todos (not completed) - memoize even before hydration
+  const availableTodos = useMemo(() => {
+    if (!isHydrated) return [];
+    return Object.values(todos).filter(todo => !todo.completed);
+  }, [todos, isHydrated]);
 
-  const projects = Array.from(new Set(mockAvailableTasks.map(task => task.project)));
+  // Filter todos based on search and filters - memoize even before hydration
+  const filteredTodos = useMemo(() => {
+    if (!isHydrated) return [];
+    return availableTodos.filter(todo => {
+      // Search filter
+      const matchesSearch = searchTerm === "" || 
+        todo.text.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const handleTaskToggle = (taskTitle: string, checked: boolean) => {
-    if (checked) {
-      setSelectedTasks([...selectedTasks, taskTitle]);
-    } else {
-      setSelectedTasks(selectedTasks.filter(t => t !== taskTitle));
-    }
-  };
+      // Project filter
+      const matchesProject = projectFilter === "all" || 
+        (projectFilter === "unassigned" && todo.projectId === "unassigned") ||
+        todo.projectId === projectFilter;
 
-  const handleAddCustomTask = () => {
-    if (customTask.trim() && !selectedTasks.includes(customTask.trim())) {
-      setSelectedTasks([...selectedTasks, customTask.trim()]);
-      setCustomTask("");
-    }
-  };
+      // Priority filter
+      const matchesPriority = priorityFilter === "all" || 
+        (priorityFilter === "high" && todo.priority >= 4) ||
+        (priorityFilter === "medium" && todo.priority === 3) ||
+        (priorityFilter === "low" && todo.priority <= 2);
 
-  const handleRemoveTask = (task: string) => {
-    setSelectedTasks(selectedTasks.filter(t => t !== task));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!sessionName.trim() || selectedTasks.length === 0) return;
-
-    onSubmit({
-      name: sessionName.trim(),
-      tasks: selectedTasks,
-      duration,
-      breakDuration,
-      totalPomodoros,
+      return matchesSearch && matchesProject && matchesPriority;
     });
+  }, [availableTodos, searchTerm, projectFilter, priorityFilter, isHydrated]);
 
-    // Reset form
-    setSessionName("");
-    setSelectedTasks([]);
-    setCustomTask("");
-    setDuration(25);
-    setBreakDuration(5);
-    setTotalPomodoros(4);
-  };
-
-  const estimatedTime = totalPomodoros * duration + (totalPomodoros - 1) * breakDuration;
-
-  const presetConfigs = [
-    { label: "Quick Sprint", duration: 15, break: 3, pomodoros: 3 },
-    { label: "Standard", duration: 25, break: 5, pomodoros: 4 },
-    { label: "Deep Work", duration: 45, break: 10, pomodoros: 3 },
-    { label: "Marathon", duration: 50, break: 15, pomodoros: 6 },
-  ];
-
-  const applyPreset = (preset: typeof presetConfigs[0]) => {
-    setDuration(preset.duration);
-    setBreakDuration(preset.break);
-    setTotalPomodoros(preset.pomodoros);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Session Name */}
-      <div className="space-y-2">
-        <Label htmlFor="session-name">Session Name *</Label>
-        <Input
-          id="session-name"
-          value={sessionName}
-          onChange={(e) => setSessionName(e.target.value)}
-          placeholder="e.g., Morning Development Sprint"
-          required
-        />
-      </div>
-
-      {/* Preset Configurations */}
-      <div className="space-y-2">
-        <Label>Quick Presets</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {presetConfigs.map((preset) => (
-            <Button
-              key={preset.label}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => applyPreset(preset)}
-              className="text-xs"
-            >
-              {preset.label}
-              <span className="ml-1 text-muted-foreground">
-                ({preset.duration}m)
-              </span>
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Time Configuration */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="duration">
-            <Clock className="w-4 h-4 inline mr-1" />
-            Focus (min)
-          </Label>
-          <Input
-            id="duration"
-            type="number"
-            min="5"
-            max="90"
-            value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value) || 25)}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="break-duration">
-            <Coffee className="w-4 h-4 inline mr-1" />
-            Break (min)
-          </Label>
-          <Input
-            id="break-duration"
-            type="number"
-            min="3"
-            max="30"
-            value={breakDuration}
-            onChange={(e) => setBreakDuration(parseInt(e.target.value) || 5)}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="total-pomodoros">
-            <Target className="w-4 h-4 inline mr-1" />
-            Sessions
-          </Label>
-          <Input
-            id="total-pomodoros"
-            type="number"
-            min="1"
-            max="12"
-            value={totalPomodoros}
-            onChange={(e) => setTotalPomodoros(parseInt(e.target.value) || 4)}
-          />
-        </div>
-      </div>
-
-      {/* Estimated Time */}
+  // Get unique projects for filter - memoize even before hydration
+  const projectOptions = useMemo(() => {
+    if (!isHydrated) return [];
+    const projectIds = [...new Set(availableTodos.map(todo => todo.projectId))];
+    return projectIds
+      .filter(id => id && id.trim() !== "") // Filter out empty or invalid IDs
+      .map(id => {
+        if (id === "unassigned") {
+          return { id: "unassigned", title: "Unassigned" };
+        }
+        return projects[id] || { id, title: "Unknown Project" };
+      });
+  }, [availableTodos, projects, isHydrated]);
+  
+  // Show loading state until hydrated
+  if (!isHydrated) {
+    return (
       <Card>
-        <CardContent className="p-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Estimated total time:</span>
-            <span className="font-medium">{Math.floor(estimatedTime / 60)}h {estimatedTime % 60}m</span>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            Select Tasks to Focus On
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p className="text-sm text-muted-foreground">Loading tasks...</p>
+            </div>
           </div>
         </CardContent>
       </Card>
+    );
+  }
 
-      {/* Task Selection */}
-      <div className="space-y-4">
+  const handleTaskToggle = (todoId: string) => {
+    const newSelection = localSelectedTasks.includes(todoId)
+      ? localSelectedTasks.filter(id => id !== todoId)
+      : localSelectedTasks.length < maxTasks 
+        ? [...localSelectedTasks, todoId]
+        : localSelectedTasks;
+
+    setLocalSelectedTasks(newSelection);
+    onTasksSelected?.(newSelection);
+  };
+
+  const handleSelectAll = () => {
+    const selectableTasks = filteredTodos
+      .slice(0, maxTasks)
+      .map(todo => todo.id);
+    setLocalSelectedTasks(selectableTasks);
+    onTasksSelected?.(selectableTasks);
+  };
+
+  const handleClearAll = () => {
+    setLocalSelectedTasks([]);
+    onTasksSelected?.([]);
+  };
+
+  const getPriorityColor = (priority: number) => {
+    if (priority >= 5) return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+    if (priority >= 4) return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
+    if (priority >= 3) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+    return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+  };
+
+  const getPriorityLabel = (priority: number) => {
+    if (priority >= 5) return "Urgent";
+    if (priority >= 4) return "High";
+    if (priority >= 3) return "Medium";
+    return "Low";
+  };
+
+  return (
+    <Card>
+      <CardHeader>
         <div className="flex items-center justify-between">
-          <Label>Select Tasks</Label>
-          <div className="flex gap-2">
-            <Select value={filterProject} onValueChange={setFilterProject}>
-              <SelectTrigger className="w-[140px] h-8 text-xs">
-                <SelectValue placeholder="All Projects" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Projects</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project} value={project}>
-                    {project}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[100px] h-8 text-xs">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="todo">Todos</SelectItem>
-                <SelectItem value="project">Projects</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            Select Tasks to Focus On
+          </CardTitle>
+          <Badge variant="outline">
+            {localSelectedTasks.length}/{maxTasks} selected
+          </Badge>
         </div>
-
-        {/* Available Tasks */}
-        <div className="max-h-[200px] overflow-y-auto border rounded p-3 space-y-2">
-          {availableTasks.map((task) => (
-            <div key={task.id} className="flex items-start gap-3">
-              <Checkbox
-                id={task.id}
-                checked={selectedTasks.includes(task.title)}
-                onCheckedChange={(checked) => 
-                  handleTaskToggle(task.title, checked as boolean)
-                }
-              />
-              <div className="flex-1 min-w-0">
-                <label htmlFor={task.id} className="text-sm cursor-pointer">
-                  {task.title}
-                </label>
-                <div className="flex items-center gap-1 mt-1">
-                  <Badge variant="outline" className="text-xs">
-                    {task.project}
-                  </Badge>
-                  <Badge 
-                    variant={task.type === "todo" ? "default" : "secondary"} 
-                    className="text-xs"
-                  >
-                    {task.type}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Custom Task Input */}
-        <div className="space-y-2">
-          <Label>Add Custom Task</Label>
-          <div className="flex gap-2">
+        <p className="text-sm text-muted-foreground">
+          Choose up to {maxTasks} tasks for your focus session
+        </p>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              value={customTask}
-              onChange={(e) => setCustomTask(e.target.value)}
-              placeholder="Enter custom task..."
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleAddCustomTask();
-                }
-              }}
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
             />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAddCustomTask}
-              disabled={!customTask.trim()}
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
           </div>
+          
+          <Select value={projectFilter} onValueChange={setProjectFilter}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Project" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Projects</SelectItem>
+              {projectOptions.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Priority</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Selected Tasks */}
-        {selectedTasks.length > 0 && (
-          <div className="space-y-2">
-            <Label>Selected Tasks ({selectedTasks.length})</Label>
-            <div className="flex flex-wrap gap-1">
-              {selectedTasks.map((task) => (
-                <Badge key={task} variant="secondary" className="gap-1">
-                  <CheckSquare className="w-3 h-3" />
-                  {task}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTask(task)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleSelectAll}
+            disabled={filteredTodos.length === 0}
+          >
+            Select Top {Math.min(maxTasks, filteredTodos.length)}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleClearAll}
+            disabled={localSelectedTasks.length === 0}
+          >
+            Clear All
+          </Button>
+        </div>
 
-      {/* Form Actions */}
-      <div className="flex gap-3 pt-4">
-        <Button
-          type="submit"
-          disabled={!sessionName.trim() || selectedTasks.length === 0}
-          className="flex-1"
-        >
-          Create Focus Session
-        </Button>
-      </div>
-    </form>
+        {/* Task List */}
+        <ScrollArea className="h-[300px]">
+          <div className="space-y-2">
+            {filteredTodos.length > 0 ? (
+              filteredTodos.map((todo) => {
+                const project = projects[todo.projectId] || { title: "Unassigned", category: "personal" };
+                const isSelected = localSelectedTasks.includes(todo.id);
+                const isOverdue = todo.dueDate && isBefore(new Date(todo.dueDate), new Date());
+                const isDueToday = todo.dueDate && isToday(new Date(todo.dueDate));
+                
+                return (
+                  <div
+                    key={todo.id}
+                    className={`p-3 border rounded-lg transition-colors cursor-pointer ${
+                      isSelected 
+                        ? "bg-primary/10 border-primary" 
+                        : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => handleTaskToggle(todo.id)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => {}} // Handled by parent click
+                        disabled={!isSelected && localSelectedTasks.length >= maxTasks}
+                      />
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-sm truncate">
+                            {todo.text}
+                          </span>
+                          <Badge 
+                            variant="outline" 
+                            className={getPriorityColor(todo.priority)}
+                          >
+                            {getPriorityLabel(todo.priority)}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Badge variant="secondary" className="text-xs">
+                            {project.title}
+                          </Badge>
+                          
+                          {todo.dueDate && (
+                            <div className={`flex items-center gap-1 ${
+                              isOverdue ? 'text-red-600' : isDueToday ? 'text-orange-600' : ''
+                            }`}>
+                              <Clock className="w-3 h-3" />
+                              <span>
+                                Due {format(new Date(todo.dueDate), 'MMM d')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No tasks found matching your criteria.</p>
+                <Button variant="outline" className="mt-2" size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Task
+                </Button>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Start Focus Button */}
+        {localSelectedTasks.length > 0 && (
+          <Button className="w-full" size="lg">
+            <Play className="w-4 h-4 mr-2" />
+            Start Focus Session with {localSelectedTasks.length} Task{localSelectedTasks.length > 1 ? 's' : ''}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAppStore } from "@/hooks/use-app-store";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
 import { Badge } from "@/components/ui/badge";
 import { 
   User, 
@@ -49,37 +51,52 @@ interface UserProfile {
   };
 }
 
-// Mock user data
-const mockProfile: UserProfile = {
-  firstName: "John",
-  lastName: "Smith",
-  email: "john.smith@example.com",
-  phone: "+1 (555) 123-4567",
-  location: "San Francisco, CA",
-  website: "https://johnsmith.dev",
-  bio: "Full-stack developer passionate about creating efficient, user-friendly applications. Specializing in React, Node.js, and cloud architecture.",
-  avatar: "",
-  timezone: "America/Los_Angeles",
-  dateFormat: "MM/DD/YYYY",
-  timeFormat: "12h",
-  skills: ["JavaScript", "React", "Node.js", "TypeScript", "AWS"],
-  workingHours: {
-    start: "09:00",
-    end: "17:00",
-    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-  },
-  notifications: {
-    email: true,
-    desktop: true,
-    mobile: false,
-    weeklyReport: true,
-  },
-};
-
 export function ProfileForm() {
-  const [profile, setProfile] = useState<UserProfile>(mockProfile);
+  const isHydrated = useHydratedStore();
+  const store = useAppStore();
+  const settings = store.settings;
+
+  // Initialize profile from settings with defaults
+  const [profile, setProfile] = useState<UserProfile>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    location: "",
+    website: "",
+    bio: "",
+    avatar: "",
+    timezone: "America/Los_Angeles",
+    dateFormat: "MM/DD/YYYY",
+    timeFormat: "12h",
+    skills: [],
+    workingHours: {
+      start: "09:00",
+      end: "17:00",
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    },
+    notifications: {
+      email: settings.remindersEnabled,
+      desktop: settings.remindersEnabled,
+      mobile: false,
+      weeklyReport: true,
+    },
+  });
   const [newSkill, setNewSkill] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!isHydrated) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (field: keyof UserProfile, value: unknown) => {
     setProfile(prev => ({ ...prev, [field]: value }));

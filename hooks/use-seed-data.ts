@@ -59,6 +59,7 @@ export const useSeedData = () => {
         priority: 4,
         energyLevel: 3,
         completed: true,
+        todayTag: false,
       },
       {
         projectId: workProjectId,
@@ -66,6 +67,7 @@ export const useSeedData = () => {
         priority: 5,
         energyLevel: 4,
         completed: false,
+        todayTag: true, // Priority for today
       },
       {
         projectId: workProjectId,
@@ -73,6 +75,7 @@ export const useSeedData = () => {
         priority: 3,
         energyLevel: 3,
         completed: false,
+        todayTag: true, // Priority for today
         dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       },
       {
@@ -81,6 +84,7 @@ export const useSeedData = () => {
         priority: 4,
         energyLevel: 4,
         completed: false,
+        todayTag: false,
       },
       
       // E-commerce todos
@@ -90,6 +94,7 @@ export const useSeedData = () => {
         priority: 5,
         energyLevel: 4,
         completed: true,
+        todayTag: false,
       },
       {
         projectId: clientProjectId,
@@ -97,6 +102,7 @@ export const useSeedData = () => {
         priority: 4,
         energyLevel: 3,
         completed: false,
+        todayTag: true, // Priority for today
       },
       {
         projectId: clientProjectId,
@@ -104,6 +110,7 @@ export const useSeedData = () => {
         priority: 3,
         energyLevel: 2,
         completed: false,
+        todayTag: false,
         dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       },
       
@@ -114,6 +121,7 @@ export const useSeedData = () => {
         priority: 3,
         energyLevel: 4,
         completed: false,
+        todayTag: false,
       },
       {
         projectId: personalProjectId,
@@ -121,6 +129,7 @@ export const useSeedData = () => {
         priority: 2,
         energyLevel: 3,
         completed: false,
+        todayTag: false,
       },
     ];
 
@@ -193,7 +202,7 @@ export const useSeedData = () => {
 
     // Set today's review
     const today = new Date().toISOString().split('T')[0];
-    const activeTodos = store.getActiveTodos();
+    const activeTodos = Object.values(store.todos).filter(todo => !todo.completed);
     const todayTodoIds = activeTodos.slice(0, 3).map(todo => todo.id);
     store.setDailyReview(today, todayTodoIds);
 
@@ -230,8 +239,21 @@ export const useAppStats = () => {
       ? Math.round((Object.values(store.todos).filter(t => t.completed).length / Object.keys(store.todos).length) * 100)
       : 0,
     
-    overdueTodos: store.getOverdueTodos().length,
-    todayTodos: store.getTodayTodos().length,
+    overdueTodos: (() => {
+      const now = new Date();
+      return Object.values(store.todos).filter(todo => {
+        if (todo.completed || !todo.dueDate) return false;
+        return new Date(todo.dueDate) < now;
+      }).length;
+    })(),
+    todayTodos: (() => {
+      const today = new Date().toISOString().split('T')[0];
+      const dailyReview = store.dailyReview[today];
+      if (!dailyReview) return 0;
+      return dailyReview.selectedTodoIds
+        .map(id => store.todos[id])
+        .filter(Boolean).length;
+    })(),
     
     // Time tracking
     totalTimeSpent: Object.values(store.projects).reduce((acc, project) => acc + project.timeSpent, 0),

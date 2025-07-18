@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, X } from "lucide-react";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import { toast } from "sonner";
 
 interface QuickAddTodoFormProps {
   onSubmit?: (todo: {
@@ -30,9 +32,20 @@ export function QuickAddTodoForm({ onSubmit }: QuickAddTodoFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [energyLevel, setEnergyLevel] = useState(3);
+  const [projectId, setProjectId] = useState<string>("unassigned");
   const [dueDate, setDueDate] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+
+  // Get projects from store
+  const { projects, addTodo, isHydrated } = useHydratedStore();
+  
+  const projectsList = useMemo(() => Object.values(projects), [projects]);
+
+  if (!isHydrated) {
+    return <div>Loading...</div>;
+  }
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -47,28 +60,58 @@ export function QuickAddTodoForm({ onSubmit }: QuickAddTodoFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      toast.error("Todo title is required");
+      return;
+    }
 
-    const newTodo = {
-      title: title.trim(),
-      description: description.trim(),
-      priority,
-      dueDate,
-      tags,
-    };
+    try {
+      // Create todo using store
+      const todo = {
+        id: `todo-${Date.now()}`,
+        text: title.trim(),
+        description: description.trim(),
+        projectId: projectId === "unassigned" ? "" : projectId,
+        priority: priority === "low" ? 2 : priority === "medium" ? 3 : 4,
+        energyLevel: energyLevel,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: "current-user",
+        tags: tags,
+        todayTag: false
+      };
 
-    onSubmit?.(newTodo);
+      addTodo(todo);
+      
+      // Call the optional callback
+      if (onSubmit) {
+        onSubmit({
+          title: title.trim(),
+          description: description.trim(),
+          priority,
+          dueDate,
+          tags,
+        });
+      }
 
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setPriority("medium");
-    setDueDate("");
-    setTags([]);
-    setTagInput("");
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setPriority("medium");
+      setEnergyLevel(3);
+      setProjectId("unassigned");
+      setDueDate("");
+      setTags([]);
+      setTagInput("");
+      
+      toast.success("Todo created successfully!");
+    } catch (error) {
+      console.error("Failed to create todo:", error);
+      toast.error("Failed to create todo");
+    }
+  };  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleAddTag();
@@ -112,9 +155,44 @@ export function QuickAddTodoForm({ onSubmit }: QuickAddTodoFormProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="low">🟢 Low</SelectItem>
+                  <SelectItem value="medium">🟡 Medium</SelectItem>
+                  <SelectItem value="high">🔴 High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="energy">Energy Level</Label>
+              <Select value={energyLevel.toString()} onValueChange={(value) => setEnergyLevel(parseInt(value))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">💤 Very Low</SelectItem>
+                  <SelectItem value="2">😴 Low</SelectItem>
+                  <SelectItem value="3">⚡ Medium</SelectItem>
+                  <SelectItem value="4">🔥 High</SelectItem>
+                  <SelectItem value="5">🚀 Very High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="project">Project</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">No Project</SelectItem>
+                  {projectsList.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.title}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

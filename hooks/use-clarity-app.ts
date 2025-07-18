@@ -1,107 +1,49 @@
 import { useEffect } from 'react';
-import { useAppStore, useSyncActions } from './use-app-store';
+import { useAppStore } from './use-app-store';
 import { useSeedData } from './use-seed-data';
-import { initSyncService } from '@/lib/sync-service';
+import { useSyncManager } from './use-sync-manager';
+import { useAuthContext } from '@/lib/auth-context';
 
 /**
  * Main hook to initialize the Clarity app with data management and sync
  * Call this in your main layout or app component
  */
-export const useClarityApp = (options?: {
-  userId?: string;
-  instantDb?: any;
-  enableAutoSync?: boolean;
-  autoSyncInterval?: number;
-}) => {
+export const useClarityApp = () => {
   const store = useAppStore();
-  const syncActions = useSyncActions();
   const { seedDemoData } = useSeedData();
-  
-  const {
-    userId,
-    instantDb,
-    enableAutoSync = false,
-    autoSyncInterval = 5 * 60 * 1000, // 5 minutes
-  } = options || {};
+  const { user } = useAuthContext();
+  const { syncToCloud, hasCloudData } = useSyncManager();
 
-  // Initialize sync service if InstantDB is provided
+  // Initialize demo data if user has no cloud data and local data is empty
   useEffect(() => {
-    if (instantDb) {
-      initSyncService(instantDb);
+    if (user && !hasCloudData && Object.keys(store.projects).length === 0) {
+      seedDemoData();
     }
-  }, [instantDb]);
-
-  // Set up network status monitoring
-  useEffect(() => {
-    const cleanup = syncActions.initializeNetworkListener();
-    return cleanup;
-  }, []);
-
-  // Set up auto-sync if enabled and user is authenticated
-  useEffect(() => {
-    if (!enableAutoSync || !userId) return;
-
-    const interval = setInterval(async () => {
-      if (store.isOnline && !store.syncInProgress) {
-        try {
-          await syncActions.autoSync(userId);
-        } catch (error) {
-          console.error('Auto-sync failed:', error);
-        }
-      }
-    }, autoSyncInterval);
-
-    return () => clearInterval(interval);
-  }, [enableAutoSync, userId, autoSyncInterval, store.isOnline, store.syncInProgress]);
-
-  // Initial sync when user logs in
-  useEffect(() => {
-    if (userId && store.isOnline) {
-      syncActions.syncFromCloud(userId);
-    }
-  }, [userId]);
+  }, [user, hasCloudData, store.projects, seedDemoData]);
 
   const initializeDemoData = () => {
     seedDemoData();
   };
 
   const manualSync = async () => {
-    if (!userId) {
+    if (!user) {
       console.warn('Cannot sync without authentication');
       return;
     }
-    
+
     try {
-      await syncActions.autoSync(userId);
+      await syncToCloud();
       console.log('Manual sync completed');
     } catch (error) {
       console.error('Manual sync failed:', error);
+      throw error;
     }
   };
 
   return {
-    // Store state
-    store,
-    
-    // Sync functionality
-    ...syncActions,
-    manualSync,
-    
-    // Demo data
+    isAuthenticated: !!user,
     initializeDemoData,
-    
-    // App status
-    isInitialized: true,
-    hasData: Object.keys(store.projects).length > 0,
-    
-    // Quick actions
-    quickActions: {
-      addProject: store.addProject,
-      addTodo: store.addTodo,
-      toggleTodo: store.toggleTodo,
-      getActiveTodos: store.getActiveTodos,
-      getTodayTodos: store.getTodayTodos,
-    },
+    manualSync,
   };
 };
 
@@ -113,18 +55,37 @@ export const useDashboardData = () => {
   
   const dashboardData = {
     // Today's focus
-    todayTodos: store.getTodayTodos(),
-    overdueTodos: store.getOverdueTodos(),
+    todayTodos: (() => {
+      const today = new Date().toISOString().split('T')[0];
+      const dailyReview = store.dailyReview[today];
+      if (!dailyReview) return [];
+      return dailyReview.selectedTodoIds
+        .map(id => store.todos[id])
+        .filter(Boolean);
+    })(),
+    overdueTodos: (() => {
+      const now = new Date();
+      return Object.values(store.todos).filter(todo => {
+        if (todo.completed || !todo.dueDate) return false;
+        return new Date(todo.dueDate) < now;
+      });
+    })(),
     
     // Projects by category
-    workProjects: store.getProjectsByCategory('work'),
-    clientProjects: store.getProjectsByCategory('client'),
-    personalProjects: store.getProjectsByCategory('personal'),
+    workProjects: Object.values(store.projects).filter(
+      project => project.category === 'work' && !project.archived
+    ),
+    clientProjects: Object.values(store.projects).filter(
+      project => project.category === 'client' && !project.archived
+    ),
+    personalProjects: Object.values(store.projects).filter(
+      project => project.category === 'personal' && !project.archived
+    ),
     
     // Quick stats
     stats: {
       totalProjects: Object.keys(store.projects).length,
-      activeTodos: store.getActiveTodos().length,
+      activeTodos: Object.values(store.todos).filter(todo => !todo.completed).length,
       completedTodos: Object.values(store.todos).filter(t => t.completed).length,
       totalSessions: Object.keys(store.sessions).length,
     },
@@ -172,3 +133,4 @@ export const useFocusSession = () => {
     ),
   };
 };
+

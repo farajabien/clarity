@@ -28,6 +28,7 @@ interface TodoCardProps {
   isSelected: boolean;
   onToggle: () => void;
   onSelect: (selected: boolean) => void;
+  onDelete?: () => void;
 }
 
 const priorityColors = {
@@ -36,7 +37,7 @@ const priorityColors = {
   high: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
 };
 
-export function TodoCard({ todo, isSelected, onToggle, onSelect }: TodoCardProps) {
+export function TodoCard({ todo, isSelected, onToggle, onSelect, onDelete }: TodoCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -86,7 +87,11 @@ export function TodoCard({ todo, isSelected, onToggle, onSelect }: TodoCardProps
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>Edit</DropdownMenuItem>
                   <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem 
+                    className="text-destructive"
+                    onClick={onDelete}
+                    disabled={!onDelete}
+                  >
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>

@@ -10,20 +10,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
-
-// Dummy data for todos (replace with real data as needed)
-const todos = [
-  { id: "1", text: "Review project goals" },
-  { id: "2", text: "Plan today's top 3 tasks" },
-  { id: "3", text: "Check client emails" },
-];
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
 
 export function DailyReviewModal() {
+  const { todos, setDailyReview, isHydrated } = useHydratedStore();
+
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
   const [checked, setChecked] = useState<Record<string, boolean>>({});
+
+  if (!isHydrated) {
+    return null;
+  }
+
+  // Get today's todos
+  const todoList = Object.values(todos).slice(0, 10); // Show first 10 todos
 
   const handleCheck = (id: string) => {
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -51,7 +54,7 @@ export function DailyReviewModal() {
           />
         </div>
         <div className="space-y-2">
-          {todos.map((todo) => (
+          {todoList.map((todo) => (
             <div key={todo.id} className="flex items-center gap-2">
               <Checkbox
                 checked={!!checked[todo.id]}

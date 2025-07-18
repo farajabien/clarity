@@ -1,17 +1,5 @@
-import { id, tx } from '@instantdb/react';
+import { db, id, tx } from '@/lib/instant';
 import type { AppState } from './types';
-
-interface InstantDB {
-  transact: (transactions: unknown[]) => Promise<unknown>;
-  query: (query: unknown) => Promise<{ data: Record<string, unknown> }>;
-}
-
-// This will be replaced with actual InstantDB instance when available
-let db: InstantDB | null = null;
-
-export const initSyncService = (instantDb: InstantDB) => {
-  db = instantDb;
-};
 
 export interface SyncSnapshot {
   id: string;
@@ -44,49 +32,20 @@ export class SyncService {
   }
 
   static async pullSnapshot(userId: string): Promise<SyncSnapshot | null> {
-    if (!db) {
-      throw new Error('Sync service not initialized');
-    }
-
-    try {
-      const { data } = await db.query({
-        snapshots: {
-          $: {
-            where: { userId },
-            limit: 1,
-          },
-        },
-      });
-
-      const snapshot = (data as { snapshots?: SyncSnapshot[] })?.snapshots?.[0];
-      return snapshot || null;
-    } catch (error) {
-      console.error('Failed to pull snapshot:', error);
-      throw error;
-    }
+    // This method is deprecated - use useSyncManager hook instead
+    console.warn('pullSnapshot is deprecated. Use useSyncManager hook for querying data.');
+    return null;
   }
 
   static async getLastSyncTime(userId: string): Promise<string | null> {
-    const snapshot = await this.pullSnapshot(userId);
-    return snapshot?.lastSync || null;
+    // This method is deprecated - use useSyncManager hook instead
+    console.warn('getLastSyncTime is deprecated. Use useSyncManager hook for querying data.');
+    return null;
   }
 
   static async deleteSnapshot(userId: string): Promise<void> {
-    if (!db) {
-      throw new Error('Sync service not initialized');
-    }
-
-    try {
-      const snapshot = await this.pullSnapshot(userId);
-      if (snapshot) {
-        await db.transact([
-          tx.snapshots[snapshot.id].delete(),
-        ]);
-      }
-    } catch (error) {
-      console.error('Failed to delete snapshot:', error);
-      throw error;
-    }
+    // This method is deprecated - use useSyncManager hook instead
+    console.warn('deleteSnapshot is deprecated. Use useSyncManager hook for data operations.');
   }
 }
 

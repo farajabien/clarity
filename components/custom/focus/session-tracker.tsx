@@ -21,6 +21,8 @@ import {
   Trophy,
   Flame
 } from "lucide-react";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import type { Session } from "@/lib/types";
 
 interface FocusSession {
   id: string;
@@ -37,10 +39,36 @@ interface FocusSession {
 }
 
 interface SessionTrackerProps {
-  sessions: FocusSession[];
+  sessions?: FocusSession[];
 }
 
-export function SessionTracker({ sessions }: SessionTrackerProps) {
+export function SessionTracker({ sessions: propSessions }: SessionTrackerProps) {
+  const { sessions: storeSessions, isHydrated } = useHydratedStore();
+  
+  // Show loading state until hydrated
+  if (!isHydrated) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="w-5 h-5" />
+            Session Analytics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+              <p className="text-sm text-muted-foreground">Loading session data...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Use prop sessions if provided, otherwise use store sessions
+  const sessions = propSessions || [];
   const completedSessions = sessions.filter(s => s.status === "completed");
   const totalFocusTime = completedSessions.reduce((total, session) => {
     return total + (session.completedPomodoros * session.duration);
@@ -114,15 +142,30 @@ export function SessionTracker({ sessions }: SessionTrackerProps) {
     }
   };
 
-  // Mock chart data (in a real app, you'd use a proper chart library like recharts)
+  // Generate weekly data from real sessions
   const generateWeeklyData = () => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const storeSessionsArray = Object.values(storeSessions) as Session[];
+    
     return days.map(day => {
-      const sessionsForDay = Math.floor(Math.random() * 4) + 1; // Mock data
+      const sessionsForDay = storeSessionsArray.filter(session => {
+        const sessionDate = new Date(session.startTime);
+        const dayName = sessionDate.toLocaleDateString('en-US', { weekday: 'short' });
+        return dayName === day;
+      }).length;
+      
+      const totalTime = storeSessionsArray
+        .filter(session => {
+          const sessionDate = new Date(session.startTime);
+          const dayName = sessionDate.toLocaleDateString('en-US', { weekday: 'short' });
+          return dayName === day;
+        })
+        .reduce((sum, session) => sum + session.actualMinutes, 0);
+      
       return {
         day,
         sessions: sessionsForDay,
-        time: sessionsForDay * 25, // Mock focused time
+        time: totalTime,
       };
     });
   };

@@ -1,4 +1,5 @@
-import { TodoList, QuickAddTodoForm } from "@/components/custom/todos";
+import { TodosDataTable } from "@/components/custom/todos/todos-data-table";
+import { QuickAddTodoForm } from "@/components/custom/todos";
 
 export default function TodosPage() {
   return (
@@ -10,11 +11,9 @@ export default function TodosPage() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="space-y-4">
-            <TodoList />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3">
+          <TodosDataTable />
         </div>
         
         <div className="space-y-4">

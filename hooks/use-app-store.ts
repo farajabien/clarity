@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { useEffect } from 'react';
 import { SyncService, ConflictResolution, isOnline, onNetworkChange } from '@/lib/sync-service';
 import type { 
   AppState, 
@@ -42,6 +43,7 @@ interface AppStore extends AppState {
   updateTodo: (id: string, updates: Partial<Todo>) => void;
   deleteTodo: (id: string) => void;
   toggleTodo: (id: string) => void;
+  toggleTodayTag: (id: string) => void;
   bulkUpdateTodos: (ids: string[], updates: Partial<Todo>) => void;
   
   // Actions for Sessions
@@ -67,12 +69,7 @@ interface AppStore extends AppState {
   updateLastSync: (timestamp: string) => void;
   loadFromSnapshot: (snapshot: AppState) => void;
   
-  // Computed getters
-  getProjectsByCategory: (category: Project['category']) => Project[];
-  getTodosByProject: (projectId: string) => Todo[];
-  getActiveTodos: () => Todo[];
-  getTodayTodos: () => Todo[];
-  getOverdueTodos: () => Todo[];
+  // Computed getters - Only keep non-problematic ones
   getSessionsByDateRange: (startDate: string, endDate: string) => Session[];
   getResourcesByProject: (projectId: string) => Resource[];
 }
@@ -176,6 +173,7 @@ export const useAppStore = create<AppStore>()(
           ...todoData,
           id,
           completed: todoData.completed || false,
+          todayTag: todoData.todayTag || false,
           createdAt: now(),
           updatedAt: now(),
         };
@@ -205,6 +203,15 @@ export const useAppStore = create<AppStore>()(
         set((state) => {
           if (state.todos[id]) {
             state.todos[id].completed = !state.todos[id].completed;
+            state.todos[id].updatedAt = now();
+          }
+        });
+      },
+
+      toggleTodayTag: (id: string) => {
+        set((state) => {
+          if (state.todos[id]) {
+            state.todos[id].todayTag = !state.todos[id].todayTag;
             state.todos[id].updatedAt = now();
           }
         });
@@ -330,46 +337,7 @@ export const useAppStore = create<AppStore>()(
         });
       },
 
-      // Computed getters
-      getProjectsByCategory: (category) => {
-        const projects = get().projects;
-        return Object.values(projects).filter(
-          project => project.category === category && !project.archived
-        );
-      },
-
-      getTodosByProject: (projectId) => {
-        const todos = get().todos;
-        return Object.values(todos).filter(todo => todo.projectId === projectId);
-      },
-
-      getActiveTodos: () => {
-        const todos = get().todos;
-        return Object.values(todos).filter(todo => !todo.completed);
-      },
-
-      getTodayTodos: () => {
-        const today = new Date().toISOString().split('T')[0];
-        const dailyReview = get().getDailyReview(today);
-        const todos = get().todos;
-        
-        if (!dailyReview) return [];
-        
-        return dailyReview.selectedTodoIds
-          .map(id => todos[id])
-          .filter(Boolean);
-      },
-
-      getOverdueTodos: () => {
-        const todos = get().todos;
-        const now = new Date();
-        
-        return Object.values(todos).filter(todo => {
-          if (todo.completed || !todo.dueDate) return false;
-          return new Date(todo.dueDate) < now;
-        });
-      },
-
+      // Computed getters - Only keep non-problematic ones
       getSessionsByDateRange: (startDate, endDate) => {
         const sessions = get().sessions;
         const start = new Date(startDate);
@@ -389,6 +357,7 @@ export const useAppStore = create<AppStore>()(
     {
       name: 'clarity-app-storage',
       storage: createJSONStorage(() => localStorage),
+      skipHydration: true, // Prevent SSR hydration issues
       partialize: (state) => ({
         projects: state.projects,
         todos: state.todos,

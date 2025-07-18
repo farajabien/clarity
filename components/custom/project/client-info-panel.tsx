@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useAppStore } from "@/hooks/use-app-store";
 import {
   Building,
   Mail,
@@ -45,26 +46,34 @@ interface ClientInfo {
   tags: string[];
 }
 
-// Mock data
-const mockClient: ClientInfo = {
-  id: "1",
-  name: "TechCorp Solutions",
-  company: "TechCorp Solutions Inc.",
-  email: "contact@techcorp.com",
-  phone: "+1 (555) 123-4567",
-  website: "https://techcorp.com",
-  address: "123 Business Ave, San Francisco, CA 94102",
-  contactPerson: "John Smith",
-  relationship: "ongoing",
-  totalProjects: 8,
-  totalRevenue: 45000,
-  startDate: "2024-03-15",
-  notes: "Long-term client with multiple ongoing projects. Prefers agile methodology and weekly check-ins.",
-  tags: ["enterprise", "tech", "long-term"],
-};
-
 export function ClientInfoPanel() {
-  const [client, setClient] = useState<ClientInfo>(mockClient);
+  const projects = useAppStore((state) => state.projects);
+  
+  // Get client projects (projects with "client" category)
+  const clientProjects = Object.values(projects).filter(p => p.category === "client");
+  const totalRevenue = clientProjects.reduce((sum, p) => sum + (p.budget || 0), 0);
+
+  // Create a client from project data or use defaults
+  const [client, setClient] = useState<ClientInfo>({
+    id: "default-client",
+    name: clientProjects.length > 0 ? "Client Portfolio" : "No Client Projects",
+    company: "Various Clients",
+    email: "",
+    phone: "",
+    website: "",
+    address: "",
+    contactPerson: "",
+    relationship: clientProjects.length > 0 ? "ongoing" : "new",
+    totalProjects: clientProjects.length,
+    totalRevenue,
+    startDate: clientProjects.length > 0 
+      ? clientProjects.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0].createdAt.split('T')[0]
+      : new Date().toISOString().split('T')[0],
+    notes: clientProjects.length > 0 
+      ? `Managing ${clientProjects.length} client projects with total budget of $${totalRevenue.toLocaleString()}`
+      : "No client projects yet. Create a project with 'client' category to see client information.",
+    tags: ["client"],
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<ClientInfo>(client);
 

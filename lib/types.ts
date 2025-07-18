@@ -32,6 +32,7 @@ export const TodoSchema = z.object({
   energyLevel: z.number().min(1).max(5).optional(),
   dueDate: z.string().datetime().optional(),
   completed: z.boolean().default(false),
+  todayTag: z.boolean().default(false), // Priority tag for today
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

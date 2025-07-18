@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Search, Filter, Plus } from "lucide-react";
 import { ProjectCard } from "./project-card";
-import { QuickAddProjectForm } from "./quick-add-project-form";
-import { useAppStore } from "@/hooks/use-app-store";
+import { AddProjectDialog } from "@/components/layout/add-project-dialog";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
 import type { Project } from "@/lib/types";
 
 interface ProjectGridProps {
@@ -22,28 +22,44 @@ interface ProjectGridProps {
 }
 
 export function ProjectGrid({ category }: ProjectGridProps) {
-  const store = useAppStore();
-  const projectsByCategory = store.getProjectsByCategory(category);
-  
+  const { projects, isHydrated, updateProject } = useHydratedStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
-  const [showAddForm, setShowAddForm] = useState(false);
+  
+  const projectsByCategory = useMemo(() => 
+    Object.values(projects).filter(
+      project => project.category === category && !project.archived
+    ),
+    [projects, category]
+  );
 
-  // Filter projects by search/filter criteria
-  const filteredProjects = projectsByCategory.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = statusFilter === "all" || project.status === statusFilter;
-    const matchesPriority = priorityFilter === "all" || project.priority === priorityFilter;
-    
-    return matchesSearch && matchesStatus && matchesPriority;
-  });
-
-  const handleUpdateProject = (projectId: string, updates: Partial<Project>) => {
-    store.updateProject(projectId, updates);
-  };
+  const filteredProjects = useMemo(() => 
+    projectsByCategory.filter(project => {
+      const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesStatus = statusFilter === "all" || project.status === statusFilter;
+      const matchesPriority = priorityFilter === "all" || project.priority === priorityFilter;
+      
+      return matchesSearch && matchesStatus && matchesPriority;
+    }),
+    [projectsByCategory, searchTerm, statusFilter, priorityFilter]
+  );
+  
+  // Don't render until hydrated
+  if (!isHydrated) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-64 bg-gray-200 rounded animate-pulse"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const getCategoryIcon = () => {
     switch (category) {
@@ -75,10 +91,12 @@ export function ProjectGrid({ category }: ProjectGridProps) {
             Manage your {category} projects and track progress.
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Project
-        </Button>
+        <AddProjectDialog>
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Project
+          </Button>
+        </AddProjectDialog>
       </div>
 
       {/* Search and Filters */}
@@ -131,40 +149,24 @@ export function ProjectGrid({ category }: ProjectGridProps) {
           <ProjectCard
             key={project.id}
             project={project}
-            onUpdate={(updatedProject) => {
-              handleUpdateProject(project.id, updatedProject);
-            }}
           />
         ))}
         
         {filteredProjects.length === 0 && (
           <div className="col-span-full text-center py-12">
             <p className="text-muted-foreground">No projects found matching your criteria.</p>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowAddForm(true)}
-              className="mt-4"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Your First Project
-            </Button>
+            <AddProjectDialog>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Your First Project
+              </Button>
+            </AddProjectDialog>
           </div>
         )}
       </div>
-
-      {/* Quick Add Form Dialog */}
-      <QuickAddProjectForm
-        open={showAddForm}
-        onOpenChange={setShowAddForm}
-        onSubmit={(projectData) => {
-          store.addProject({
-            ...projectData,
-            category,
-          });
-          setShowAddForm(false);
-        }}
-        category={category}
-      />
     </div>
   );
 }

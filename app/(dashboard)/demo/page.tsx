@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +15,33 @@ import {
   ExternalLink,
   Play,
   Settings,
-  Home
+  Home,
+  Database,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
+import { useSeedData } from "@/hooks/use-seed-data";
+import { useAppStore } from "@/hooks/use-app-store";
+import { toast } from "sonner";
 
 export default function DemoPage() {
+  const { seedDemoData } = useSeedData();
+  const store = useAppStore();
+  
+  const projectCount = Object.keys(store.projects).length;
+  const todoCount = Object.keys(store.todos).length;
+
+  const handleSeedData = () => {
+    seedDemoData();
+    toast.success("Demo data loaded! Check out the other pages to see your data.");
+  };
+
+  const handleClearData = () => {
+    // Clear all data
+    Object.keys(store.projects).forEach(id => store.deleteProject(id));
+    Object.keys(store.todos).forEach(id => store.deleteTodo(id));
+    toast.success("All data cleared!");
+  };
   const routes = [
     { 
       path: "/today", 
@@ -93,6 +117,36 @@ export default function DemoPage() {
           Interactive Demo • Click any section below
         </Badge>
       </div>
+
+      {/* Demo Data Controls */}
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="w-5 h-5" />
+            Demo Data Controls
+          </CardTitle>
+          <CardDescription>
+            Load sample projects and tasks to fully experience Clarity&apos;s features.
+            Current data: {projectCount} projects, {todoCount} tasks
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Button onClick={handleSeedData} className="flex-1">
+              <Database className="w-4 h-4 mr-2" />
+              Load Demo Data
+            </Button>
+            <Button 
+              onClick={handleClearData} 
+              variant="outline"
+              disabled={projectCount === 0 && todoCount === 0}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Clear All Data
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Separator />
 

@@ -19,6 +19,7 @@ import {
   Target,
   PieChart
 } from "lucide-react";
+import { useAppStore } from "@/hooks/use-app-store";
 
 interface BudgetData {
   projectId: string;
@@ -32,48 +33,38 @@ interface BudgetData {
   lastUpdated: string;
 }
 
-// Mock data
-const mockBudgetData: BudgetData[] = [
-  {
-    projectId: "1",
-    projectName: "E-commerce Platform Redesign",
-    totalBudget: 15000,
-    spentAmount: 9750,
-    estimatedHours: 120,
-    actualHours: 78,
-    hourlyRate: 125,
-    status: "on-track",
-    lastUpdated: "2025-07-17",
-  },
-  {
-    projectId: "2",
-    projectName: "Mobile App Development",
-    totalBudget: 25000,
-    spentAmount: 28000,
-    estimatedHours: 200,
-    actualHours: 224,
-    hourlyRate: 125,
-    status: "over-budget",
-    lastUpdated: "2025-07-16",
-  },
-  {
-    projectId: "3",
-    projectName: "Analytics Dashboard",
-    totalBudget: 8000,
-    spentAmount: 6500,
-    estimatedHours: 64,
-    actualHours: 52,
-    hourlyRate: 125,
-    status: "completed",
-    lastUpdated: "2025-07-15",
-  },
-];
-
 export function BudgetTracker() {
-  const totalBudget = mockBudgetData.reduce((sum, project) => sum + project.totalBudget, 0);
-  const totalSpent = mockBudgetData.reduce((sum, project) => sum + project.spentAmount, 0);
-  const totalEstimatedHours = mockBudgetData.reduce((sum, project) => sum + project.estimatedHours, 0);
-  const totalActualHours = mockBudgetData.reduce((sum, project) => sum + project.actualHours, 0);
+  const projects = useAppStore((state) => state.projects);
+
+  // Convert projects to budget data format
+  const budgetData: BudgetData[] = Object.values(projects)
+    .filter(project => project.budget && project.budget > 0)
+    .map(project => {
+      const spentAmount = project.timeSpent * 125; // $125 hourly rate
+      const budgetProgress = project.budget ? (spentAmount / project.budget) * 100 : 0;
+      
+      let status: BudgetData['status'] = "on-track";
+      if (project.status === "completed") status = "completed";
+      else if (budgetProgress > 100) status = "over-budget";
+      else if (budgetProgress < 50) status = "under-budget";
+      
+      return {
+        projectId: project.id,
+        projectName: project.title,
+        totalBudget: project.budget || 0,
+        spentAmount,
+        estimatedHours: project.estimatedTime,
+        actualHours: project.timeSpent,
+        hourlyRate: 125,
+        status,
+        lastUpdated: project.updatedAt.split('T')[0],
+      };
+    });
+
+  const totalBudget = budgetData.reduce((sum, project) => sum + project.totalBudget, 0);
+  const totalSpent = budgetData.reduce((sum, project) => sum + project.spentAmount, 0);
+  const totalEstimatedHours = budgetData.reduce((sum, project) => sum + project.estimatedHours, 0);
+  const totalActualHours = budgetData.reduce((sum, project) => sum + project.actualHours, 0);
 
   const overallProgress = (totalSpent / totalBudget) * 100;
   const isOverBudget = totalSpent > totalBudget;
@@ -225,7 +216,7 @@ export function BudgetTracker() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockBudgetData.map((project) => {
+            {budgetData.map((project) => {
               const progress = calculateProjectProgress(project);
               const isProjectOverBudget = project.spentAmount > project.totalBudget;
               

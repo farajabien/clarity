@@ -3,8 +3,11 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { AuthGate } from "@/components/layout/auth-gate";
+import { AuthProvider } from "@/lib/auth-context";
+import { StoreHydration } from "@/components/store-hydration";
+import { ThemeProvider } from "@/components/theme-provider";
 
+// App metadata configuration
 export const metadata: Metadata = {
   title: "Clarity - ADHD-Friendly Project Management",
   description: "A centralized, ADHD-friendly dashboard for developers to manage projects without decision paralysis or context switching overhead.",
@@ -36,11 +39,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        {children}
-        <AuthGate />
-        <Toaster />
+        <ThemeProvider
+        attribute={"class"}
+          enableSystem
+          defaultTheme="system"
+        >
+          <AuthProvider>
+            <StoreHydration />
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

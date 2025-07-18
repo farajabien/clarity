@@ -1,4 +1,4 @@
-import { FocusSessionClient } from "@/components/custom/focus";
+import { FocusTaskList } from "@/components/custom/focus/focus-task-list";
 
 export default function FocusPage() {
   return (
@@ -6,11 +6,11 @@ export default function FocusPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">🎯 Focus</h1>
         <p className="text-muted-foreground">
-          Enter deep work mode with Pomodoro sessions and task tracking.
+          View and manage all your tasks in one focused view.
         </p>
       </div>
       
-      <FocusSessionClient />
+      <FocusTaskList />
     </div>
   );
 }
