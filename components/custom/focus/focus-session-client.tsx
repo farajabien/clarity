@@ -34,6 +34,7 @@ import { SessionTracker } from "./session-tracker";
 import { SessionSummaryDialog } from "./session-summary-dialog";
 import { SessionCreationForm } from "./session-creation-form";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import type { Session, Todo } from "@/lib/types";
 
 interface FocusSession {
   id: string;
@@ -61,11 +62,17 @@ export function FocusSessionClient() {
 
   // Safely access sessions and todos properties with fallback - memoized
   const storeSessions = useMemo(() => {
-    return 'sessions' in store ? store.sessions : {};
+    if ('sessions' in store && store.sessions && typeof store.sessions === 'object') {
+      return store.sessions as Record<string, Session>;
+    }
+    return {};
   }, [store]);
 
   const todos = useMemo(() => {
-    return 'todos' in store ? store.todos : {};
+    if ('todos' in store && store.todos && typeof store.todos === 'object') {
+      return store.todos as Record<string, Todo>;
+    }
+    return {};
   }, [store]);
 
   // Convert store sessions to focus sessions format - memoize even before hydration
