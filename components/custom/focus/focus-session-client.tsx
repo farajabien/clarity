@@ -51,7 +51,7 @@ interface FocusSession {
 
 export function FocusSessionClient() {
   const store = useHydratedStore();
-  const { todos, addSession, isHydrated } = store;
+  const { addSession, isHydrated } = store;
 
   // Local state for UI
   const [showNewSessionDialog, setShowNewSessionDialog] = useState(false);
@@ -59,9 +59,13 @@ export function FocusSessionClient() {
   const [selectedSession, setSelectedSession] = useState<FocusSession | null>(null);
   const [activeFocusSession, setActiveFocusSession] = useState<FocusSession | null>(null);
 
-  // Safely access sessions property with fallback - memoized
+  // Safely access sessions and todos properties with fallback - memoized
   const storeSessions = useMemo(() => {
     return 'sessions' in store ? store.sessions : {};
+  }, [store]);
+
+  const todos = useMemo(() => {
+    return 'todos' in store ? store.todos : {};
   }, [store]);
 
   // Convert store sessions to focus sessions format - memoize even before hydration
@@ -120,7 +124,7 @@ export function FocusSessionClient() {
     setActiveFocusSession(updatedSession);
   };
 
-  const handlePauseSession = (session: FocusSession) => {
+  const handlePauseSession = () => {
     setActiveFocusSession(null);
   };
 
@@ -222,7 +226,7 @@ export function FocusSessionClient() {
           <CardContent>
             <PomodoroTimer
               session={activeFocusSession}
-              onPause={() => handlePauseSession(activeFocusSession)}
+              onPause={() => handlePauseSession()}
               onComplete={() => handleCompleteSession(activeFocusSession)}
               onUpdateSession={(updates) => {
                 const updatedSession = { ...activeFocusSession, ...updates };
@@ -339,7 +343,7 @@ export function FocusSessionClient() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handlePauseSession(session)}
+                                onClick={() => handlePauseSession()}
                               >
                                 <Pause className="w-3 h-3" />
                               </Button>
