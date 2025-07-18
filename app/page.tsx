@@ -18,13 +18,13 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+    <div className="min-h-screen hero-gradient">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <FocusIcon className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 brand-bg rounded-lg flex items-center justify-center">
+              <FocusIcon className="w-5 h-5 brand-fg" />
             </div>
             <span className="text-xl font-bold">Clarity</span>
           </div>
@@ -40,7 +40,7 @@ export default function HomePage() {
           <Badge variant="secondary" className="mb-4">
             Productivity & Focus Management
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 hero-title">
             Achieve Crystal Clear
             <br />
             Productivity
@@ -71,10 +71,10 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {/* Today View */}
-          <Card className="group hover:shadow-lg transition-shadow">
+          <Card className="feature-card group hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <div className="feature-icon feature-icon--primary">
+                <Calendar className="w-6 h-6" />
               </div>
               <CardTitle>Daily Focus</CardTitle>
               <CardDescription>
@@ -91,10 +91,10 @@ export default function HomePage() {
           </Card>
 
           {/* Project Management */}
-          <Card className="group hover:shadow-lg transition-shadow">
+          <Card className="feature-card group hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                <LayoutGrid className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <div className="feature-icon feature-icon--success">
+                <LayoutGrid className="w-6 h-6" />
               </div>
               <CardTitle>Project Organization</CardTitle>
               <CardDescription>
@@ -111,10 +111,10 @@ export default function HomePage() {
           </Card>
 
           {/* Todo Management */}
-          <Card className="group hover:shadow-lg transition-shadow">
+          <Card className="feature-card group hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                <CheckSquare className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <div className="feature-icon feature-icon--accent">
+                <CheckSquare className="w-6 h-6" />
               </div>
               <CardTitle>Smart Task Management</CardTitle>
               <CardDescription>
@@ -131,10 +131,10 @@ export default function HomePage() {
           </Card>
 
           {/* Focus Sessions */}
-          <Card className="group hover:shadow-lg transition-shadow">
+          <Card className="feature-card group hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
-                <Timer className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              <div className="feature-icon feature-icon--warning">
+                <Timer className="w-6 h-6" />
               </div>
               <CardTitle>Pomodoro Focus</CardTitle>
               <CardDescription>
@@ -151,10 +151,10 @@ export default function HomePage() {
           </Card>
 
           {/* Analytics */}
-          <Card className="group hover:shadow-lg transition-shadow">
+          <Card className="feature-card group hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+              <div className="feature-icon feature-icon--info">
+                <BarChart3 className="w-6 h-6" />
               </div>
               <CardTitle>Progress Insights</CardTitle>
               <CardDescription>
@@ -171,10 +171,10 @@ export default function HomePage() {
           </Card>
 
           {/* Settings */}
-          <Card className="group hover:shadow-lg transition-shadow">
+          <Card className="feature-card group hover:shadow-lg transition-shadow">
             <CardHeader>
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
-                <Settings className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <div className="feature-icon feature-icon--secondary">
+                <Settings className="w-6 h-6" />
               </div>
               <CardTitle>Personalization</CardTitle>
               <CardDescription>
@@ -193,7 +193,7 @@ export default function HomePage() {
 
         {/* CTA Section */}
         <div className="text-center">
-          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
+          <Card className="cta-card max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="text-2xl">Ready to Get Started?</CardTitle>
               <CardDescription className="text-lg">
@@ -222,12 +222,12 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-white/50 dark:bg-gray-950/50 backdrop-blur">
+      <footer className="footer-section border-t">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
-                <FocusIcon className="w-4 h-4 text-white" />
+              <div className="w-6 h-6 brand-bg rounded-md flex items-center justify-center">
+                <FocusIcon className="w-4 h-4 brand-fg" />
               </div>
               <span className="font-semibold">Clarity</span>
               <Separator orientation="vertical" className="h-4" />
