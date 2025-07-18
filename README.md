@@ -119,7 +119,7 @@
 ## 🚀 Getting Started
 
 1. **Clone**:
-   `git clone https://github.com/your-username/clarity.git`
+   `git clone https://github.com/farajabien/clarity.git`
 
 2. **Install**:
    `pnpm install`
