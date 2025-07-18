@@ -123,7 +123,7 @@
 
 /* Custom semantic classes for easy theming */
 @layer components {
-  /* Brand colors */
+  /* Brand colors - easily customizable */
   .brand-bg {
     @apply bg-blue-600;
   }
@@ -132,7 +132,7 @@
     @apply text-white;
   }
   
-  /* Hero section */
+  /* Hero section styling */
   .hero-gradient {
     @apply bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950;
   }
@@ -141,12 +141,17 @@
     @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
   }
   
-  /* Feature cards */
+  /* Feature cards - inherits card component styling */
   .feature-card {
-    /* Inherits default card styling */
+    /* Additional customizations can be added here */
+    transition: transform 0.2s ease;
   }
   
-  /* Feature icons with semantic variants */
+  .feature-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Feature icons with semantic color variants */
   .feature-icon {
     @apply w-12 h-12 rounded-lg flex items-center justify-center mb-4;
   }
@@ -175,13 +180,47 @@
     @apply bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400;
   }
   
-  /* CTA card */
+  /* Call-to-action card styling */
   .cta-card {
     @apply bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800;
   }
   
-  /* Footer */
+  /* Footer section styling */
   .footer-section {
     @apply bg-white/50 dark:bg-gray-950/50 backdrop-blur;
+  }
+  
+  /* Project status badges */
+  .status-planning {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
+  }
+  
+  .status-in-progress {
+    @apply bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300;
+  }
+  
+  .status-review {
+    @apply bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300;
+  }
+  
+  .status-completed {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+  }
+  
+  .status-on-hold {
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300;
+  }
+  
+  /* Priority badges */
+  .priority-low {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+  }
+  
+  .priority-medium {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300;
+  }
+  
+  .priority-high {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
   }
 }
