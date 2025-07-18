@@ -49,13 +49,19 @@ interface FocusSession {
 }
 
 export function FocusSessionClient() {
-  const { sessions: storeSessions, todos, addSession, isHydrated } = useHydratedStore();
+  const store = useHydratedStore();
+  const { todos, addSession, isHydrated } = store;
 
   // Local state for UI
   const [showNewSessionDialog, setShowNewSessionDialog] = useState(false);
   const [showSummaryDialog, setShowSummaryDialog] = useState(false);
   const [selectedSession, setSelectedSession] = useState<FocusSession | null>(null);
   const [activeFocusSession, setActiveFocusSession] = useState<FocusSession | null>(null);
+
+  // Safely access sessions property with fallback - memoized
+  const storeSessions = useMemo(() => {
+    return 'sessions' in store ? store.sessions : {};
+  }, [store]);
 
   // Convert store sessions to focus sessions format - memoize even before hydration
   const completedSessions = useMemo((): FocusSession[] => {
