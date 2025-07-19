@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@instantdb/core": "0.20.8",
     "@instantdb/react": "^0.20.9",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",

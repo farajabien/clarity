@@ -7,7 +7,7 @@ export const ProjectSchema = z.object({
   desc: z.string().optional(),
   estimate: z.number().optional(),
   description: z.string().optional(),
-  priority: z.enum(["low", "medium", "high"]), 
+  priority: z.enum(["low", "medium", "high"]),
   progress: z.number().min(0).max(100).default(0),
   dueDate: z.string().datetime().optional(),
   tags: z.array(z.string()).default([]),
@@ -35,6 +35,7 @@ export const TodoSchema = z.object({
   todayTag: z.boolean().default(false), // Priority tag for today
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  dependencies: z.array(z.string()).default([]), // <-- NEW FIELD
 });
 export type Todo = z.infer<typeof TodoSchema>;
 
@@ -74,10 +75,12 @@ export const SettingsSchema = z.object({
   darkMode: z.boolean().default(false),
   syncInterval: z.number().default(300000), // in ms
   remindersEnabled: z.boolean().default(true),
-  accessibilityOpts: z.object({
-    highContrast: z.boolean().default(false),
-    reducedMotion: z.boolean().default(false),
-  }).default({ highContrast: false, reducedMotion: false }),
+  accessibilityOpts: z
+    .object({
+      highContrast: z.boolean().default(false),
+      reducedMotion: z.boolean().default(false),
+    })
+    .default({ highContrast: false, reducedMotion: false }),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 

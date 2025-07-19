@@ -1,14 +1,31 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -34,7 +51,7 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { projects: projectsData, addTodo, isHydrated } = useHydratedStore();
-  
+
   const projects = useMemo(() => Object.values(projectsData), [projectsData]);
 
   if (!isHydrated) {
@@ -43,7 +60,7 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.text.trim()) {
       toast.error("Todo text is required");
       return;
@@ -56,7 +73,8 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
         id: `todo-${Date.now()}`,
         text: formData.text,
         description: formData.description,
-        projectId: formData.projectId === "unassigned" ? "" : formData.projectId,
+        projectId:
+          formData.projectId === "unassigned" ? "" : formData.projectId,
         priority: formData.priority,
         energyLevel: formData.energyLevel,
         dueDate: formData.dueDate?.toISOString(),
@@ -64,10 +82,11 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
         todayTag: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        dependencies: [],
       };
 
       addTodo(todo);
-      
+
       // Reset form
       setFormData({
         text: "",
@@ -77,7 +96,7 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
         energyLevel: 3,
         dueDate: undefined,
       });
-      
+
       setOpen(false);
       toast.success("Todo created successfully!");
     } catch (error) {
@@ -102,9 +121,7 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Todo</DialogTitle>
@@ -112,7 +129,7 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
             Add a new task with priority and energy level matching.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Task Text */}
           <div className="space-y-2">
@@ -120,7 +137,9 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
             <Input
               id="text"
               value={formData.text}
-              onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, text: e.target.value })
+              }
               placeholder="What needs to be done?"
               required
             />
@@ -132,7 +151,9 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Any additional context or notes"
               rows={2}
             />
@@ -141,7 +162,12 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
           {/* Project Selection */}
           <div className="space-y-2">
             <Label htmlFor="projectId">Project (Optional)</Label>
-            <Select value={formData.projectId} onValueChange={(value) => setFormData({ ...formData, projectId: value })}>
+            <Select
+              value={formData.projectId}
+              onValueChange={(value) =>
+                setFormData({ ...formData, projectId: value })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a project or leave unassigned" />
               </SelectTrigger>
@@ -151,9 +177,7 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
                   <SelectItem key={project.id} value={project.id}>
                     {project.category === "work" && "💼"}
                     {project.category === "client" && "💰"}
-                    {project.category === "personal" && "🧑‍🎨"}
-                    {" "}
-                    {project.title}
+                    {project.category === "personal" && "🧑‍🎨"} {project.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -164,7 +188,9 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="priority">Priority</Label>
-              <span className="text-sm font-medium">{getPriorityLabel(formData.priority)}</span>
+              <span className="text-sm font-medium">
+                {getPriorityLabel(formData.priority)}
+              </span>
             </div>
             <Slider
               id="priority"
@@ -172,7 +198,9 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
               max={5}
               step={1}
               value={[formData.priority]}
-              onValueChange={(value) => setFormData({ ...formData, priority: value[0] })}
+              onValueChange={(value) =>
+                setFormData({ ...formData, priority: value[0] })
+              }
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -186,7 +214,9 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="energyLevel">Energy Level Required</Label>
-              <span className="text-sm font-medium">{getEnergyLabel(formData.energyLevel)}</span>
+              <span className="text-sm font-medium">
+                {getEnergyLabel(formData.energyLevel)}
+              </span>
             </div>
             <Slider
               id="energyLevel"
@@ -194,7 +224,9 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
               max={5}
               step={1}
               value={[formData.energyLevel]}
-              onValueChange={(value) => setFormData({ ...formData, energyLevel: value[0] })}
+              onValueChange={(value) =>
+                setFormData({ ...formData, energyLevel: value[0] })
+              }
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -220,14 +252,18 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.dueDate ? format(formData.dueDate, "PPP") : "Pick a due date"}
+                  {formData.dueDate
+                    ? format(formData.dueDate, "PPP")
+                    : "Pick a due date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
                   selected={formData.dueDate}
-                  onSelect={(date) => setFormData({ ...formData, dueDate: date })}
+                  onSelect={(date) =>
+                    setFormData({ ...formData, dueDate: date })
+                  }
                   initialFocus
                 />
               </PopoverContent>
@@ -236,7 +272,12 @@ export function AddTodoDialog({ children, projectId }: AddTodoDialogProps) {
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="flex-1"
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">

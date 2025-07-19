@@ -1,20 +1,26 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { useEffect } from 'react';
-import { SyncService, ConflictResolution, isOnline, onNetworkChange } from '@/lib/sync-service';
-import type { 
-  AppState, 
-  Project, 
-  Todo, 
-  Session, 
-  Resource, 
-  DailyReview, 
-  Settings 
-} from '@/lib/types';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import { useEffect } from "react";
+import {
+  SyncService,
+  ConflictResolution,
+  isOnline,
+  onNetworkChange,
+} from "@/lib/sync-service";
+import type {
+  AppState,
+  Project,
+  Todo,
+  Session,
+  Resource,
+  DailyReview,
+  Settings,
+} from "@/lib/types";
 
 // Helper function to generate IDs
-const generateId = () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const generateId = () =>
+  `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 // Helper function to get current ISO string
 const now = () => new Date().toISOString();
@@ -24,51 +30,66 @@ interface AppStore extends AppState {
   isOnline: boolean;
   lastSync: string | null;
   syncInProgress: boolean;
-  
+
   // Actions for Projects
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'progress' | 'tags' | 'timeSpent' | 'estimatedTime' | 'archived' | 'deployLink'> & {
-    progress?: number;
-    tags?: string[];
-    timeSpent?: number;
-    estimatedTime?: number;
-    archived?: boolean;
-    deployLink?: string | null;
-  }) => string;
+  addProject: (
+    project: Omit<
+      Project,
+      | "id"
+      | "createdAt"
+      | "updatedAt"
+      | "progress"
+      | "tags"
+      | "timeSpent"
+      | "estimatedTime"
+      | "archived"
+      | "deployLink"
+    > & {
+      progress?: number;
+      tags?: string[];
+      timeSpent?: number;
+      estimatedTime?: number;
+      archived?: boolean;
+      deployLink?: string | null;
+    }
+  ) => string;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   archiveProject: (id: string) => void;
-  
+
   // Actions for Todos
-  addTodo: (todo: Omit<Todo, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  addTodo: (todo: Omit<Todo, "id" | "createdAt" | "updatedAt">) => string;
   updateTodo: (id: string, updates: Partial<Todo>) => void;
   deleteTodo: (id: string) => void;
   toggleTodo: (id: string) => void;
   toggleTodayTag: (id: string) => void;
   bulkUpdateTodos: (ids: string[], updates: Partial<Todo>) => void;
-  
+
   // Actions for Sessions
-  addSession: (session: Omit<Session, 'id' | 'createdAt'>) => string;
+  addSession: (session: Omit<Session, "id" | "createdAt">) => string;
   updateSession: (id: string, updates: Partial<Session>) => void;
   deleteSession: (id: string) => void;
-  
+
   // Actions for Resources
-  addResource: (resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  addResource: (
+    resource: Omit<Resource, "id" | "createdAt" | "updatedAt">
+  ) => string;
   updateResource: (id: string, updates: Partial<Resource>) => void;
   deleteResource: (id: string) => void;
-  
+
   // Actions for Daily Review
   setDailyReview: (date: string, selectedTodoIds: string[]) => void;
   getDailyReview: (date: string) => DailyReview | null;
-  
+
   // Actions for Settings
   updateSettings: (updates: Partial<Settings>) => void;
-  
+
   // Sync Actions
   setOnlineStatus: (isOnline: boolean) => void;
   markSyncInProgress: (inProgress: boolean) => void;
   updateLastSync: (timestamp: string) => void;
   loadFromSnapshot: (snapshot: AppState) => void;
-  
+
   // Computed getters - Only keep non-problematic ones
   getSessionsByDateRange: (startDate: string, endDate: string) => Session[];
   getResourcesByProject: (projectId: string) => Resource[];
@@ -81,7 +102,7 @@ const initialState: AppState = {
   resources: {},
   dailyReview: {},
   settings: {
-    theme: 'system',
+    theme: "system",
     darkMode: false,
     syncInterval: 300000,
     remindersEnabled: true,
@@ -97,7 +118,7 @@ export const useAppStore = create<AppStore>()(
     immer((set, get) => ({
       // Initial state
       ...initialState,
-      isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+      isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
       lastSync: null,
       syncInProgress: false,
 
@@ -124,11 +145,11 @@ export const useAppStore = create<AppStore>()(
           createdAt: now(),
           updatedAt: now(),
         };
-        
+
         set((state) => {
           state.projects[id] = project;
         });
-        
+
         return id;
       },
 
@@ -144,12 +165,12 @@ export const useAppStore = create<AppStore>()(
         set((state) => {
           delete state.projects[id];
           // Also delete related todos and resources
-          Object.keys(state.todos).forEach(todoId => {
+          Object.keys(state.todos).forEach((todoId) => {
             if (state.todos[todoId].projectId === id) {
               delete state.todos[todoId];
             }
           });
-          Object.keys(state.resources).forEach(resourceId => {
+          Object.keys(state.resources).forEach((resourceId) => {
             if (state.resources[resourceId].projectId === id) {
               delete state.resources[resourceId];
             }
@@ -174,14 +195,15 @@ export const useAppStore = create<AppStore>()(
           id,
           completed: todoData.completed || false,
           todayTag: todoData.todayTag || false,
+          dependencies: todoData.dependencies || [], // <-- Ensure dependencies is always present
           createdAt: now(),
           updatedAt: now(),
         };
-        
+
         set((state) => {
           state.todos[id] = todo;
         });
-        
+
         return id;
       },
 
@@ -189,6 +211,10 @@ export const useAppStore = create<AppStore>()(
         set((state) => {
           if (state.todos[id]) {
             Object.assign(state.todos[id], { ...updates, updatedAt: now() });
+            if (updates.dependencies === undefined) {
+              // Ensure dependencies is always present
+              state.todos[id].dependencies = state.todos[id].dependencies || [];
+            }
           }
         });
       },
@@ -219,7 +245,7 @@ export const useAppStore = create<AppStore>()(
 
       bulkUpdateTodos: (ids, updates) => {
         set((state) => {
-          ids.forEach(id => {
+          ids.forEach((id) => {
             if (state.todos[id]) {
               Object.assign(state.todos[id], { ...updates, updatedAt: now() });
             }
@@ -235,11 +261,11 @@ export const useAppStore = create<AppStore>()(
           id,
           createdAt: now(),
         };
-        
+
         set((state) => {
           state.sessions[id] = session;
         });
-        
+
         return id;
       },
 
@@ -266,18 +292,21 @@ export const useAppStore = create<AppStore>()(
           createdAt: now(),
           updatedAt: now(),
         };
-        
+
         set((state) => {
           state.resources[id] = resource;
         });
-        
+
         return id;
       },
 
       updateResource: (id, updates) => {
         set((state) => {
           if (state.resources[id]) {
-            Object.assign(state.resources[id], { ...updates, updatedAt: now() });
+            Object.assign(state.resources[id], {
+              ...updates,
+              updatedAt: now(),
+            });
           }
         });
       },
@@ -342,8 +371,8 @@ export const useAppStore = create<AppStore>()(
         const sessions = get().sessions;
         const start = new Date(startDate);
         const end = new Date(endDate);
-        
-        return Object.values(sessions).filter(session => {
+
+        return Object.values(sessions).filter((session) => {
           const sessionDate = new Date(session.startTime);
           return sessionDate >= start && sessionDate <= end;
         });
@@ -351,11 +380,13 @@ export const useAppStore = create<AppStore>()(
 
       getResourcesByProject: (projectId) => {
         const resources = get().resources;
-        return Object.values(resources).filter(resource => resource.projectId === projectId);
+        return Object.values(resources).filter(
+          (resource) => resource.projectId === projectId
+        );
       },
     })),
     {
-      name: 'clarity-app-storage',
+      name: "clarity-app-storage",
       storage: createJSONStorage(() => localStorage),
       skipHydration: true, // Prevent SSR hydration issues
       partialize: (state) => ({
@@ -373,16 +404,16 @@ export const useAppStore = create<AppStore>()(
 // Hook for sync functionality with InstantDB integration
 export const useSyncActions = () => {
   const store = useAppStore();
-  
+
   const syncToCloud = async (userId?: string) => {
     if (!userId) {
-      console.warn('Cannot sync without user ID');
+      console.warn("Cannot sync without user ID");
       return;
     }
-    
+
     try {
       store.markSyncInProgress(true);
-      
+
       const appState: AppState = {
         projects: store.projects,
         todos: store.todos,
@@ -391,33 +422,30 @@ export const useSyncActions = () => {
         dailyReview: store.dailyReview,
         settings: store.settings,
       };
-      
+
       await SyncService.pushSnapshot(userId, appState);
       store.updateLastSync(now());
-      
-      console.log('Successfully synced to cloud');
+
+      console.log("Successfully synced to cloud");
     } catch (error) {
-      console.error('Sync to cloud failed:', error);
+      console.error("Sync to cloud failed:", error);
       throw error;
     } finally {
       store.markSyncInProgress(false);
     }
   };
-  
-  
 
-  
   const initializeNetworkListener = () => {
     return onNetworkChange((online) => {
       store.setOnlineStatus(online);
-      
+
       if (online) {
-        console.log('Back online, attempting auto-sync...');
+        console.log("Back online, attempting auto-sync...");
         // Could trigger auto-sync here if user is logged in
       }
     });
   };
-  
+
   return {
     syncToCloud,
     initializeNetworkListener,

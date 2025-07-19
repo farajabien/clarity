@@ -26,14 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Plus, 
-  ExternalLink, 
-  FileText, 
-  Image, 
+import {
+  Plus,
+  ExternalLink,
+  FileText,
+  Image,
   Link as LinkIcon,
   Download,
-  MoreHorizontal
+  MoreHorizontal,
 } from "lucide-react";
 import { useAppStore } from "@/hooks/use-app-store";
 
@@ -56,19 +56,19 @@ interface ResourceListProps {
 export function ResourceList({ projectId }: ResourceListProps) {
   const { resources: storeResources, addResource } = useAppStore((state) => ({
     resources: state.resources,
-    addResource: state.addResource
+    addResource: state.addResource,
   }));
 
   // Convert store resources to display format
-  const resources = Object.values(storeResources).map(resource => ({
+  const resources = Object.values(storeResources).map((resource) => ({
     id: resource.id,
     title: resource.title,
     url: resource.link,
     type: "link" as const,
     description: "",
     tags: [],
-    dateAdded: resource.createdAt.split('T')[0],
-    projectId: resource.projectId
+    dateAdded: resource.createdAt.split("T")[0],
+    projectId: resource.projectId,
   }));
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -82,27 +82,44 @@ export function ResourceList({ projectId }: ResourceListProps) {
   const [tagInput, setTagInput] = useState("");
 
   // Filter resources by project if projectId is provided
-  const filteredResources = projectId 
-    ? resources.filter(resource => resource.projectId === projectId)
+  const filteredResources = projectId
+    ? resources.filter((resource) => resource.projectId === projectId)
     : resources;
 
   const getTypeIcon = (type: Resource["type"]) => {
     switch (type) {
-      case "link": return <LinkIcon className="w-4 h-4" />;
-      case "document": return <FileText className="w-4 h-4" />;
-      case "image": return <Image className="w-4 h-4" aria-hidden="true" />;
-      case "file": return <Download className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      case "link":
+        return <LinkIcon className="w-4 h-4" />;
+      case "document":
+        return <FileText className="w-4 h-4" />;
+      case "image":
+        return (
+          <Image
+            className="w-4 h-4"
+            aria-hidden="true"
+            width={16}
+            height={16}
+          />
+        );
+      case "file":
+        return <Download className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
     }
   };
 
   const getTypeColor = (type: Resource["type"]) => {
     switch (type) {
-      case "link": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-      case "document": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "image": return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
-      case "file": return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      case "link":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      case "document":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "image":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+      case "file":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
 
@@ -110,7 +127,7 @@ export function ResourceList({ projectId }: ResourceListProps) {
     if (tagInput.trim() && !newResource.tags.includes(tagInput.trim())) {
       setNewResource({
         ...newResource,
-        tags: [...newResource.tags, tagInput.trim()]
+        tags: [...newResource.tags, tagInput.trim()],
       });
       setTagInput("");
     }
@@ -119,7 +136,7 @@ export function ResourceList({ projectId }: ResourceListProps) {
   const handleRemoveTag = (tagToRemove: string) => {
     setNewResource({
       ...newResource,
-      tags: newResource.tags.filter(tag => tag !== tagToRemove)
+      tags: newResource.tags.filter((tag) => tag !== tagToRemove),
     });
   };
 
@@ -134,7 +151,7 @@ export function ResourceList({ projectId }: ResourceListProps) {
       url: newResource.url.trim(),
       description: newResource.description.trim(),
       projectId,
-      dateAdded: new Date().toISOString().split('T')[0],
+      dateAdded: new Date().toISOString().split("T")[0],
     };
 
     // Add to store instead of local state
@@ -144,7 +161,7 @@ export function ResourceList({ projectId }: ResourceListProps) {
       link: resource.url,
       type: resource.description,
     });
-    
+
     setNewResource({
       title: "",
       url: "",
@@ -179,7 +196,9 @@ export function ResourceList({ projectId }: ResourceListProps) {
                   <Input
                     id="resource-title"
                     value={newResource.title}
-                    onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewResource({ ...newResource, title: e.target.value })
+                    }
                     placeholder="Resource title..."
                     required
                   />
@@ -190,7 +209,9 @@ export function ResourceList({ projectId }: ResourceListProps) {
                   <Input
                     id="resource-url"
                     value={newResource.url}
-                    onChange={(e) => setNewResource({ ...newResource, url: e.target.value })}
+                    onChange={(e) =>
+                      setNewResource({ ...newResource, url: e.target.value })
+                    }
                     placeholder="https://..."
                     required
                   />
@@ -198,9 +219,9 @@ export function ResourceList({ projectId }: ResourceListProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="resource-type">Type</Label>
-                  <Select 
-                    value={newResource.type} 
-                    onValueChange={(value: Resource["type"]) => 
+                  <Select
+                    value={newResource.type}
+                    onValueChange={(value: Resource["type"]) =>
                       setNewResource({ ...newResource, type: value })
                     }
                   >
@@ -221,7 +242,12 @@ export function ResourceList({ projectId }: ResourceListProps) {
                   <Input
                     id="resource-description"
                     value={newResource.description}
-                    onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewResource({
+                        ...newResource,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Brief description..."
                   />
                 </div>
@@ -254,7 +280,11 @@ export function ResourceList({ projectId }: ResourceListProps) {
                   {newResource.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {newResource.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="gap-1 text-xs">
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="gap-1 text-xs"
+                        >
                           {tag}
                           <button
                             type="button"
@@ -279,10 +309,12 @@ export function ResourceList({ projectId }: ResourceListProps) {
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     size="sm"
-                    disabled={!newResource.title.trim() || !newResource.url.trim()}
+                    disabled={
+                      !newResource.title.trim() || !newResource.url.trim()
+                    }
                     className="flex-1"
                   >
                     Add
@@ -293,15 +325,15 @@ export function ResourceList({ projectId }: ResourceListProps) {
           </Popover>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {filteredResources.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>No resources added yet.</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setShowAddForm(true)}
               className="mt-2"
             >
@@ -343,8 +375,8 @@ export function ResourceList({ projectId }: ResourceListProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className={`gap-1 ${getTypeColor(resource.type)}`}
                     >
                       {getTypeIcon(resource.type)}

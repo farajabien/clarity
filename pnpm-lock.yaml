@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@instantdb/core':
+        specifier: 0.20.8
+        version: 0.20.8
       '@instantdb/react':
         specifier: ^0.20.9
         version: 0.20.9(react@19.1.0)
@@ -373,6 +376,9 @@ packages:
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [win32]
+
+  '@instantdb/core@0.20.8':
+    resolution: {integrity: sha512-hbbH6X8E5XMiFjFXrrPLxQ3IODQQcuAtEtD/3hxi+5/eU7lSDffMa+AyMLv+VPz9A8AnYCCDyBLzcD8xtJc99Q==}
 
   '@instantdb/core@0.20.9':
     resolution: {integrity: sha512-Aw5CVJX6WfX5dEEfyjV0x/lJWT2by3D5iCmYdOT0iQBZCyCjoqMVbUwQTiwYhK7eQehJ5jJV1XmUs+EbXNpZyA==}
@@ -2852,6 +2858,11 @@ snapshots:
 
   '@img/sharp-win32-x64@0.34.3':
     optional: true
+
+  '@instantdb/core@0.20.8':
+    dependencies:
+      mutative: 1.2.0
+      uuid: 11.1.0
 
   '@instantdb/core@0.20.9':
     dependencies:

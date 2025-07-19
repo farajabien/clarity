@@ -41,6 +41,7 @@ const _schema = i.schema({
       createdAt: i.string().optional(),
       updatedAt: i.string().optional(),
       userId: i.string().indexed().optional(),
+      dependencies: i.json().optional(), // <-- NEW FIELD
     }),
     sessions: i.entity({
       tasks: i.json().optional(), // array of todo IDs

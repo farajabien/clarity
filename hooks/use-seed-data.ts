@@ -1,13 +1,13 @@
-import { useAppStore } from '@/hooks/use-app-store';
-import type { Project, Todo, Session, Resource } from '@/lib/types';
+import { useAppStore } from "@/hooks/use-app-store";
+import type { Project, Todo, Session, Resource } from "@/lib/types";
 
 export const useSeedData = () => {
   const store = useAppStore();
 
   const seedDemoData = () => {
     // Clear existing data
-    Object.keys(store.projects).forEach(id => store.deleteProject(id));
-    
+    Object.keys(store.projects).forEach((id) => store.deleteProject(id));
+
     // Create sample projects
     const workProjectId = store.addProject({
       title: "Clarity Dashboard",
@@ -86,7 +86,7 @@ export const useSeedData = () => {
         completed: false,
         todayTag: false,
       },
-      
+
       // E-commerce todos
       {
         projectId: clientProjectId,
@@ -113,7 +113,7 @@ export const useSeedData = () => {
         todayTag: false,
         dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       },
-      
+
       // Portfolio todos
       {
         projectId: personalProjectId,
@@ -133,7 +133,7 @@ export const useSeedData = () => {
       },
     ];
 
-    todos.forEach(todo => store.addTodo(todo));
+    todos.forEach((todo) => store.addTodo({ ...todo, dependencies: [] }));
 
     // Create sample resources
     const resources = [
@@ -156,7 +156,7 @@ export const useSeedData = () => {
         link: "https://instantdb.com/docs",
         type: "documentation",
       },
-      
+
       // E-commerce resources
       {
         projectId: clientProjectId,
@@ -170,7 +170,7 @@ export const useSeedData = () => {
         link: "https://dropbox.com/products",
         type: "assets",
       },
-      
+
       // Portfolio resources
       {
         projectId: personalProjectId,
@@ -180,7 +180,7 @@ export const useSeedData = () => {
       },
     ];
 
-    resources.forEach(resource => store.addResource(resource));
+    resources.forEach((resource) => store.addResource(resource));
 
     // Create sample sessions
     const sessions = [
@@ -198,22 +198,24 @@ export const useSeedData = () => {
       },
     ];
 
-    sessions.forEach(session => store.addSession(session));
+    sessions.forEach((session) => store.addSession(session));
 
     // Set today's review
-    const today = new Date().toISOString().split('T')[0];
-    const activeTodos = Object.values(store.todos).filter(todo => !todo.completed);
-    const todayTodoIds = activeTodos.slice(0, 3).map(todo => todo.id);
+    const today = new Date().toISOString().split("T")[0];
+    const activeTodos = Object.values(store.todos).filter(
+      (todo) => !todo.completed
+    );
+    const todayTodoIds = activeTodos.slice(0, 3).map((todo) => todo.id);
     store.setDailyReview(today, todayTodoIds);
 
-    console.log('Demo data seeded successfully!');
+    console.log("Demo data seeded successfully!");
   };
 
   const clearAllData = () => {
-    Object.keys(store.projects).forEach(id => store.deleteProject(id));
-    Object.keys(store.sessions).forEach(id => store.deleteSession(id));
+    Object.keys(store.projects).forEach((id) => store.deleteProject(id));
+    Object.keys(store.sessions).forEach((id) => store.deleteSession(id));
     store.dailyReview = {};
-    console.log('All data cleared!');
+    console.log("All data cleared!");
   };
 
   return {
@@ -225,42 +227,58 @@ export const useSeedData = () => {
 // Hook to get quick stats about the current data
 export const useAppStats = () => {
   const store = useAppStore();
-  
+
   const stats = {
     totalProjects: Object.keys(store.projects).length,
-    activeProjects: Object.values(store.projects).filter(p => !p.archived).length,
+    activeProjects: Object.values(store.projects).filter((p) => !p.archived)
+      .length,
     totalTodos: Object.keys(store.todos).length,
-    completedTodos: Object.values(store.todos).filter(t => t.completed).length,
+    completedTodos: Object.values(store.todos).filter((t) => t.completed)
+      .length,
     totalSessions: Object.keys(store.sessions).length,
     totalResources: Object.keys(store.resources).length,
-    
+
     // Computed stats
-    completionRate: Object.keys(store.todos).length > 0 
-      ? Math.round((Object.values(store.todos).filter(t => t.completed).length / Object.keys(store.todos).length) * 100)
-      : 0,
-    
+    completionRate:
+      Object.keys(store.todos).length > 0
+        ? Math.round(
+            (Object.values(store.todos).filter((t) => t.completed).length /
+              Object.keys(store.todos).length) *
+              100
+          )
+        : 0,
+
     overdueTodos: (() => {
       const now = new Date();
-      return Object.values(store.todos).filter(todo => {
+      return Object.values(store.todos).filter((todo) => {
         if (todo.completed || !todo.dueDate) return false;
         return new Date(todo.dueDate) < now;
       }).length;
     })(),
     todayTodos: (() => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const dailyReview = store.dailyReview[today];
       if (!dailyReview) return 0;
       return dailyReview.selectedTodoIds
-        .map(id => store.todos[id])
+        .map((id) => store.todos[id])
         .filter(Boolean).length;
     })(),
-    
+
     // Time tracking
-    totalTimeSpent: Object.values(store.projects).reduce((acc, project) => acc + project.timeSpent, 0),
-    totalEstimatedTime: Object.values(store.projects).reduce((acc, project) => acc + project.estimatedTime, 0),
-    
+    totalTimeSpent: Object.values(store.projects).reduce(
+      (acc, project) => acc + project.timeSpent,
+      0
+    ),
+    totalEstimatedTime: Object.values(store.projects).reduce(
+      (acc, project) => acc + project.estimatedTime,
+      0
+    ),
+
     // Budget tracking
-    totalBudget: Object.values(store.projects).reduce((acc, project) => acc + (project.budget || 0), 0),
+    totalBudget: Object.values(store.projects).reduce(
+      (acc, project) => acc + (project.budget || 0),
+      0
+    ),
   };
 
   return stats;

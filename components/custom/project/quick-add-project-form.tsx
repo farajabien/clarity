@@ -45,17 +45,17 @@ interface QuickAddProjectFormProps {
   category: "work" | "client" | "personal";
 }
 
-export function QuickAddProjectForm({ 
-  open, 
-  onOpenChange, 
-  category 
+export function QuickAddProjectForm({
+  open,
+  onOpenChange,
+  category,
 }: QuickAddProjectFormProps) {
   const router = useRouter();
   const { addProject, addTodo } = useAppStore((state) => ({
     addProject: state.addProject,
     addTodo: state.addTodo,
   }));
-  
+
   const [formData, setFormData] = useState<ProjectFormData>({
     title: "",
     description: "",
@@ -68,14 +68,14 @@ export function QuickAddProjectForm({
     timeSpent: 0,
     estimatedTime: 40,
   });
-  
+
   const [tagInput, setTagInput] = useState("");
 
   const handleAddTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
       setFormData({
         ...formData,
-        tags: [...formData.tags, tagInput.trim()]
+        tags: [...formData.tags, tagInput.trim()],
       });
       setTagInput("");
     }
@@ -84,7 +84,7 @@ export function QuickAddProjectForm({
   const handleRemoveTag = (tagToRemove: string) => {
     setFormData({
       ...formData,
-      tags: formData.tags.filter(tag => tag !== tagToRemove)
+      tags: formData.tags.filter((tag) => tag !== tagToRemove),
     });
   };
 
@@ -102,7 +102,9 @@ export function QuickAddProjectForm({
         status: formData.status,
         category: category,
         progress: formData.progress,
-        dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
+        dueDate: formData.dueDate
+          ? new Date(formData.dueDate).toISOString()
+          : undefined,
         tags: formData.tags,
         budget: formData.budget,
         timeSpent: formData.timeSpent,
@@ -110,7 +112,7 @@ export function QuickAddProjectForm({
       };
 
       const projectId = addProject(projectData);
-      
+
       // Add default "Components List" todo
       addTodo({
         projectId: projectId,
@@ -119,10 +121,11 @@ export function QuickAddProjectForm({
         energyLevel: 2, // Low energy required for planning
         completed: false,
         todayTag: false,
+        dependencies: [],
       });
-      
+
       toast.success(`${getCategoryTitle()} created successfully!`);
-      
+
       // Reset form
       setFormData({
         title: "",
@@ -138,10 +141,9 @@ export function QuickAddProjectForm({
       });
       setTagInput("");
       onOpenChange(false);
-      
+
       // Redirect to project details page
       router.push(`/project/${projectId}`);
-      
     } catch (error) {
       toast.error("Failed to create project");
       console.error("Error creating project:", error);
@@ -157,10 +159,14 @@ export function QuickAddProjectForm({
 
   const getCategoryTitle = () => {
     switch (category) {
-      case "work": return "Work Project";
-      case "client": return "Client Project";
-      case "personal": return "Personal Project";
-      default: return "Project";
+      case "work":
+        return "Work Project";
+      case "client":
+        return "Client Project";
+      case "personal":
+        return "Personal Project";
+      default:
+        return "Project";
     }
   };
 
@@ -170,7 +176,7 @@ export function QuickAddProjectForm({
         <DialogHeader>
           <DialogTitle>Add New {getCategoryTitle()}</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
           <div className="space-y-4">
@@ -179,7 +185,9 @@ export function QuickAddProjectForm({
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Enter project title..."
                 required
               />
@@ -190,7 +198,9 @@ export function QuickAddProjectForm({
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Describe your project..."
                 rows={3}
               />
@@ -201,9 +211,9 @@ export function QuickAddProjectForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value: Project["status"]) => 
+              <Select
+                value={formData.status}
+                onValueChange={(value: Project["status"]) =>
                   setFormData({ ...formData, status: value })
                 }
               >
@@ -222,9 +232,9 @@ export function QuickAddProjectForm({
 
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select 
-                value={formData.priority} 
-                onValueChange={(value: Project["priority"]) => 
+              <Select
+                value={formData.priority}
+                onValueChange={(value: Project["priority"]) =>
                   setFormData({ ...formData, priority: value })
                 }
               >
@@ -245,7 +255,9 @@ export function QuickAddProjectForm({
                 id="dueDate"
                 type="date"
                 value={formData.dueDate}
-                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, dueDate: e.target.value })
+                }
               />
             </div>
 
@@ -256,10 +268,12 @@ export function QuickAddProjectForm({
                 type="number"
                 min="1"
                 value={formData.estimatedTime}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  estimatedTime: parseInt(e.target.value) || 40 
-                })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    estimatedTime: parseInt(e.target.value) || 40,
+                  })
+                }
               />
             </div>
           </div>
@@ -274,10 +288,12 @@ export function QuickAddProjectForm({
                 min="0"
                 step="100"
                 value={formData.budget || ""}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  budget: parseInt(e.target.value) || 0 
-                })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    budget: parseInt(e.target.value) || 0,
+                  })
+                }
                 placeholder="Enter project budget..."
               />
             </div>
@@ -332,8 +348,8 @@ export function QuickAddProjectForm({
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={!formData.title.trim()}
               className="flex-1"
             >
