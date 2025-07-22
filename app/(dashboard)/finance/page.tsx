@@ -7,11 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   CreditCard, 
-  DollarSign, 
-  TrendingUp, 
   TrendingDown, 
   Calculator,
-  PiggyBank,
   AlertTriangle
 } from "lucide-react";
 import Link from "next/link";

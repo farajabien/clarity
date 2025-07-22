@@ -20,7 +20,6 @@ import {
   Plus,
   AlertTriangle,
   Calendar,
-  DollarSign,
   TrendingDown,
   CheckCircle
 } from "lucide-react";
