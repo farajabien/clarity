@@ -1,13 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppStore, type AppStore } from "./use-app-store";
+import { useAppStore } from "./use-app-store";
+import type { AppState } from "@/lib/types";
+
+// Explicitly type the return to ensure projects and todos are always present
+type HydratedStore = AppState & {
+  isHydrated: boolean;
+  isOnline: boolean;
+  lastSync: string | null;
+  syncInProgress: boolean;
+  // Include all the store actions
+  [key: string]: any;
+};
 
 /**
  * Hook that ensures the store is properly hydrated before returning the store state
  * This prevents SSR hydration mismatches and infinite loops
  */
-export function useHydratedStore(): AppStore & { isHydrated: boolean } {
+export function useHydratedStore(): HydratedStore {
   const [isHydrated, setIsHydrated] = useState(false);
   const store = useAppStore();
 
@@ -31,7 +42,7 @@ export function useHydratedStore(): AppStore & { isHydrated: boolean } {
   return {
     ...store,
     isHydrated,
-  };
+  } as HydratedStore;
 }
 
 /**
