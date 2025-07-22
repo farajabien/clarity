@@ -37,7 +37,8 @@ export function FocusTaskList() {
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   
   // Get data from store
-  const { todos, projects, isHydrated, toggleTodo } = useHydratedStore();
+  const store = useHydratedStore();
+  const { todos, projects, isHydrated, toggleTodo } = store;
   
   // Get all todos - memoize even before hydration
   const allTodos = useMemo(() => {

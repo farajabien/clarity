@@ -96,9 +96,7 @@ export function ResourceList({ projectId }: ResourceListProps) {
         return (
           <Image
             className="w-4 h-4"
-            aria-hidden="true"
-            width={16}
-            height={16}
+            aria-label="Image resource"
           />
         );
       case "file":
