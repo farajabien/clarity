@@ -14,7 +14,16 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Home, CheckSquare, Briefcase, DollarSign, User, Focus, Settings } from "lucide-react";
+import { 
+  Code2, 
+  Focus, 
+  CreditCard, 
+  Settings, 
+  Briefcase, 
+  DollarSign, 
+  User, 
+  CheckSquare 
+} from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar } from "@/components/ui/avatar";
@@ -37,14 +46,33 @@ export function AppSidebar() {
     };
   }, [projects, isHydrated]);
 
-  const navItems = [
-    { title: "Today", href: "/today", icon: Home },
-    { title: "Todos", href: "/todos", icon: CheckSquare },
-    { title: "Work", href: "/work", icon: Briefcase, count: projectCounts.work },
-    { title: "Client", href: "/client", icon: DollarSign, count: projectCounts.client },
-    { title: "Personal", href: "/personal", icon: User, count: projectCounts.personal },
-    { title: "Focus", href: "/focus", icon: Focus },
-    { title: "Settings", href: "/settings", icon: Settings },
+  // Main navigation items organized by 3 tabs
+  const mainTabs = [
+    { 
+      title: "Programming Projects", 
+      href: "/dashboard", 
+      icon: Code2,
+      subItems: [
+        { title: "Work Projects", href: "/work", icon: Briefcase, count: projectCounts.work },
+        { title: "Client Projects", href: "/client", icon: DollarSign, count: projectCounts.client },
+        { title: "Personal Projects", href: "/personal", icon: User, count: projectCounts.personal },
+        { title: "All Todos", href: "/todos", icon: CheckSquare },
+      ]
+    },
+    { 
+      title: "Focus Sessions", 
+      href: "/focus", 
+      icon: Focus 
+    },
+    { 
+      title: "ELTIW + Loans", 
+      href: "/finance", 
+      icon: CreditCard,
+      subItems: [
+        { title: "ELTIW Tracker", href: "/finance/eltiw", icon: CreditCard },
+        { title: "Loan Tracker", href: "/finance/loans", icon: DollarSign },
+      ]
+    }
   ];
 
   return (
@@ -56,26 +84,68 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+          <SidebarGroupLabel>Main Tabs</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.href} className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </div>
-                      {item.count !== undefined && item.count > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          {item.count}
-                        </Badge>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              {mainTabs.map((tab) => (
+                <div key={tab.title}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link href={tab.href} className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <tab.icon className="h-4 w-4" />
+                          <span className="font-medium">{tab.title}</span>
+                        </div>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {tab.subItems && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {tab.subItems.map((subItem) => (
+                        <SidebarMenuItem key={subItem.title}>
+                          <SidebarMenuButton asChild>
+                            <Link href={subItem.href} className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <subItem.icon className="h-3 w-3" />
+                                <span className="text-sm">{subItem.title}</span>
+                              </div>
+                              {subItem.count !== undefined && subItem.count > 0 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {subItem.count}
+                                </Badge>
+                              )}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>Quick Access</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/today" className="flex items-center gap-2">
+                    <CheckSquare className="h-4 w-4" />
+                    <span>Today</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/settings" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
