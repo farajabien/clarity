@@ -48,7 +48,7 @@ export function MultiTaskSelector({
   // Get available todos (not completed) - memoize even before hydration
   const availableTodos = useMemo(() => {
     if (!isHydrated) return [];
-    return Object.values(todos).filter((todo) => !todo.completed);
+    return Object.values(todos).filter((todo: Todo) => !todo.completed);
   }, [todos, isHydrated]);
 
   // Filter todos based on search and filters - memoize even before hydration
