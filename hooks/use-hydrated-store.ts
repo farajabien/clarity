@@ -39,6 +39,7 @@ export function useHydratedStore() {
  */
 export function useStoreActions() {
   const [isHydrated, setIsHydrated] = useState(false);
+  const store = useAppStore();
   
   useEffect(() => {
     const unsubHydrate = useAppStore.persist.onFinishHydration(() => {
@@ -56,14 +57,6 @@ export function useStoreActions() {
 
   return {
     isHydrated,
-    addProject: useAppStore.getState().addProject,
-    addTodo: useAppStore.getState().addTodo,
-    updateProject: useAppStore.getState().updateProject,
-    updateTodo: useAppStore.getState().updateTodo,
-    deleteProject: useAppStore.getState().deleteProject,
-    deleteTodo: useAppStore.getState().deleteTodo,
-    toggleTodo: useAppStore.getState().toggleTodo,
-    toggleTodayTag: useAppStore.getState().toggleTodayTag,
-    archiveProject: useAppStore.getState().archiveProject,
+    ...store,
   };
 }
