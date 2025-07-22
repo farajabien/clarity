@@ -23,6 +23,7 @@ import {
   Play
 } from "lucide-react";
 import { format, isToday, isBefore } from "date-fns";
+import type { Todo } from "@/lib/types";
 
 const tabs = [
   { key: "all", label: "All Tasks" },
@@ -43,7 +44,7 @@ export function FocusTaskList() {
   // Get all todos - memoize even before hydration
   const allTodos = useMemo(() => {
     if (!isHydrated) return [];
-    return Object.values(todos);
+    return Object.values(todos) as Todo[];
   }, [todos, isHydrated]);
 
   // Filter todos by tab and search - memoize even before hydration
