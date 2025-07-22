@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Briefcase, DollarSign, User, CheckSquare, Plus, BarChart3 } from "lucide-react";
+import { Briefcase, DollarSign, User, CheckSquare, Plus } from "lucide-react";
 import { ProjectGrid } from "@/components/custom/project";
 import { AddProjectDialog } from "@/components/layout/add-project-dialog";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
@@ -14,7 +13,6 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const { projects, todos, isHydrated } = useHydratedStore();
-  const [showAddProject, setShowAddProject] = useState(false);
 
   const stats = useMemo(() => {
     if (!isHydrated) {
@@ -71,10 +69,12 @@ export default function DashboardPage() {
             Manage your work, client, and personal development projects
           </p>
         </div>
-        <Button onClick={() => setShowAddProject(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Project
-        </Button>
+        <AddProjectDialog>
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            New Project
+          </Button>
+        </AddProjectDialog>
       </div>
 
       {/* Stats Overview */}
@@ -248,11 +248,6 @@ export default function DashboardPage() {
           <ProjectGrid category="personal" />
         </TabsContent>
       </Tabs>
-
-      <AddProjectDialog 
-        open={showAddProject} 
-        onOpenChange={setShowAddProject} 
-      />
     </div>
   );
 }
