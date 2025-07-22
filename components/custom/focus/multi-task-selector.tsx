@@ -54,7 +54,7 @@ export function MultiTaskSelector({
   // Filter todos based on search and filters - memoize even before hydration
   const filteredTodos = useMemo(() => {
     if (!isHydrated) return [];
-    return availableTodos.filter((todo) => {
+    return availableTodos.filter((todo: Todo) => {
       // Search filter
       const matchesSearch =
         searchTerm === "" ||
