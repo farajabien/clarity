@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppStore } from "./use-app-store";
+import { useAppStore, type AppStore } from "./use-app-store";
 
 /**
  * Hook that ensures the store is properly hydrated before returning the store state
  * This prevents SSR hydration mismatches and infinite loops
  */
-export function useHydratedStore() {
+export function useHydratedStore(): AppStore & { isHydrated: boolean } {
   const [isHydrated, setIsHydrated] = useState(false);
   const store = useAppStore();
 

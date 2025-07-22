@@ -25,7 +25,7 @@ const generateId = () =>
 // Helper function to get current ISO string
 const now = () => new Date().toISOString();
 
-interface AppStore extends AppState {
+export interface AppStore extends AppState {
   // Sync status
   isOnline: boolean;
   lastSync: string | null;
