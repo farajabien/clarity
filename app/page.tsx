@@ -18,15 +18,15 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen hero-gradient">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-background to-indigo-50 dark:from-background dark:via-background dark:to-slate-950">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 brand-bg rounded-lg flex items-center justify-center">
-              <FocusIcon className="w-5 h-5 brand-fg" />
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <FocusIcon className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold">Clarity</span>
+            <span className="text-xl font-bold text-foreground">Clarity</span>
           </div>
           <Button asChild>
             <Link href="/today">Get Started</Link>
@@ -40,7 +40,7 @@ export default function HomePage() {
           <Badge variant="secondary" className="mb-4">
             Productivity & Focus Management
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 hero-title">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
             Achieve Crystal Clear
             <br />
             Productivity
@@ -55,7 +55,6 @@ export default function HomePage() {
                 Start Today <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
-          
           </div>
         </div>
       </section>
@@ -71,9 +70,9 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {/* Today View */}
-          <Card className="feature-card group hover:shadow-lg transition-shadow">
+          <Card className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="feature-icon feature-icon--primary">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
                 <Calendar className="w-6 h-6" />
               </div>
               <CardTitle>Daily Focus</CardTitle>
@@ -91,9 +90,9 @@ export default function HomePage() {
           </Card>
 
           {/* Project Management */}
-          <Card className="feature-card group hover:shadow-lg transition-shadow">
+          <Card className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="feature-icon feature-icon--success">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
                 <LayoutGrid className="w-6 h-6" />
               </div>
               <CardTitle>Project Organization</CardTitle>
@@ -111,9 +110,9 @@ export default function HomePage() {
           </Card>
 
           {/* Todo Management */}
-          <Card className="feature-card group hover:shadow-lg transition-shadow">
+          <Card className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="feature-icon feature-icon--accent">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
                 <CheckSquare className="w-6 h-6" />
               </div>
               <CardTitle>Smart Task Management</CardTitle>
@@ -131,9 +130,9 @@ export default function HomePage() {
           </Card>
 
           {/* Focus Sessions */}
-          <Card className="feature-card group hover:shadow-lg transition-shadow">
+          <Card className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="feature-icon feature-icon--warning">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400">
                 <Timer className="w-6 h-6" />
               </div>
               <CardTitle>Pomodoro Focus</CardTitle>
@@ -151,9 +150,9 @@ export default function HomePage() {
           </Card>
 
           {/* Analytics */}
-          <Card className="feature-card group hover:shadow-lg transition-shadow">
+          <Card className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="feature-icon feature-icon--info">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-cyan-100 dark:bg-cyan-900 text-cyan-600 dark:text-cyan-400">
                 <BarChart3 className="w-6 h-6" />
               </div>
               <CardTitle>Progress Insights</CardTitle>
@@ -171,9 +170,9 @@ export default function HomePage() {
           </Card>
 
           {/* Settings */}
-          <Card className="feature-card group hover:shadow-lg transition-shadow">
+          <Card className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
             <CardHeader>
-              <div className="feature-icon feature-icon--secondary">
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400">
                 <Settings className="w-6 h-6" />
               </div>
               <CardTitle>Personalization</CardTitle>
@@ -193,7 +192,7 @@ export default function HomePage() {
 
         {/* CTA Section */}
         <div className="text-center">
-          <Card className="cta-card max-w-2xl mx-auto">
+          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-950/50 dark:to-indigo-950/50 border-blue-200 dark:border-blue-800">
             <CardHeader>
               <CardTitle className="text-2xl">Ready to Get Started?</CardTitle>
               <CardDescription className="text-lg">
@@ -222,14 +221,14 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="footer-section border-t">
+      <footer className="bg-background/50 backdrop-blur border-t border-border">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 brand-bg rounded-md flex items-center justify-center">
-                <FocusIcon className="w-4 h-4 brand-fg" />
+              <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+                <FocusIcon className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-semibold">Clarity</span>
+              <span className="font-semibold text-foreground">Clarity</span>
               <Separator orientation="vertical" className="h-4" />
               <span className="text-sm text-muted-foreground">Productivity Redefined</span>
             </div>
