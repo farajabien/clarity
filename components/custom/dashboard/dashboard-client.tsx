@@ -9,6 +9,7 @@ import { ProjectGrid } from "@/components/custom/project";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
 import { useMemo } from "react";
 import Link from "next/link";
+import type { Project, Todo } from "@/lib/types";
 
 export function DashboardClient() {
   const { projects, todos, isHydrated } = useHydratedStore();
@@ -24,8 +25,8 @@ export function DashboardClient() {
       };
     }
 
-    const projectList = Object.values(projects);
-    const todoList = Object.values(todos);
+    const projectList = Object.values(projects) as Project[];
+    const todoList = Object.values(todos) as Todo[];
     
     return {
       work: {
