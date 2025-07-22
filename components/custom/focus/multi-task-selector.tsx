@@ -81,7 +81,7 @@ export function MultiTaskSelector({
   const projectOptions = useMemo(() => {
     if (!isHydrated) return [];
     const projectIds = [
-      ...new Set(availableTodos.map((todo) => todo.projectId)),
+      ...new Set(availableTodos.map((todo: Todo) => todo.projectId)),
     ];
     return projectIds
       .filter((id) => id && id.trim() !== "") // Filter out empty or invalid IDs
