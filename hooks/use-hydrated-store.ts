@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "./use-app-store";
 import type { AppStore } from "./use-app-store";
+import type { AppState } from "@/lib/types";
 
 // Explicitly type the return to ensure projects and todos are always present
-type HydratedStore = AppStore & {
+type HydratedStore = AppState & AppStore & {
   isHydrated: boolean;
 };
 
