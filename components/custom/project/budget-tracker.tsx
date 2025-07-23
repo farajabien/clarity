@@ -19,7 +19,8 @@ import {
   Target,
   PieChart
 } from "lucide-react";
-import { useAppStore } from "@/hooks/use-app-store";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import type { AppState, Project } from "@/lib/types";
 
 interface BudgetData {
   projectId: string;
@@ -34,12 +35,12 @@ interface BudgetData {
 }
 
 export function BudgetTracker() {
-  const projects = useAppStore((state) => state.projects);
+  const { projects, isHydrated } = useHydratedStore() as AppState & { isHydrated: boolean };
 
   // Convert projects to budget data format
-  const budgetData: BudgetData[] = Object.values(projects)
-    .filter(project => project.budget && project.budget > 0)
-    .map(project => {
+  const budgetData: BudgetData[] = !isHydrated ? [] : Object.values(projects)
+    .filter((project: Project) => project.budget && project.budget > 0)
+    .map((project: Project) => {
       const spentAmount = project.timeSpent * 125; // $125 hourly rate
       const budgetProgress = project.budget ? (spentAmount / project.budget) * 100 : 0;
       

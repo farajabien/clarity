@@ -15,7 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Project } from "@/lib/types";
 import { Textarea } from "@/components/ui/textarea";
-import { useAppStore } from "@/hooks/use-app-store";
+import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import type { AppState } from "@/lib/types";
 import {
   Building,
   Mail,
@@ -48,10 +49,10 @@ interface ClientInfo {
 }
 
 export function ClientInfoPanel() {
-  const projects = useAppStore((state) => state.projects);
+  const { projects, isHydrated } = useHydratedStore() as AppState & { isHydrated: boolean };
   
   // Get client projects (projects with "client" category)
-  const clientProjects = Object.values(projects).filter((p: Project) => p.category === "client");
+  const clientProjects = !isHydrated ? [] : Object.values(projects).filter((p: Project) => p.category === "client");
   const totalRevenue = clientProjects.reduce((sum, p) => sum + (p.budget || 0), 0);
 
   // Create a client from project data or use defaults
