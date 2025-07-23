@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Todo, Project } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,7 @@ export function TodoList() {
   // Convert store todos to array and add project info
   const todosList = useMemo(() => {
     if (!isHydrated) return [];
-    return Object.values(todos).map(todo => ({
+    return Object.values(todos).map((todo: Todo) => ({
       ...todo,
       title: todo.text, // Map text to title for component compatibility
       priority: todo.priority <= 2 ? "low" as const : 
@@ -62,7 +63,7 @@ export function TodoList() {
   // Get unique projects for filter
   const projectOptions = useMemo(() => {
     if (!isHydrated) return [];
-    return Object.values(projects).map(project => ({
+    return Object.values(projects).map((project: Project) => ({
       id: project.id,
       title: project.title
     }));

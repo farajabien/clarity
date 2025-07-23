@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
+import type { Todo } from "@/lib/types";
 
 export function DailyReviewModal() {
   const { todos, isHydrated } = useHydratedStore();
@@ -26,7 +27,7 @@ export function DailyReviewModal() {
   }
 
   // Get today's todos
-  const todoList = Object.values(todos).slice(0, 10); // Show first 10 todos
+  const todoList = Object.values(todos).slice(0, 10) as Todo[]; // Show first 10 todos
 
   const handleCheck = (id: string) => {
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -54,7 +55,7 @@ export function DailyReviewModal() {
           />
         </div>
         <div className="space-y-2">
-          {todoList.map((todo) => (
+          {todoList.map((todo: Todo) => (
             <div key={todo.id} className="flex items-center gap-2">
               <Checkbox
                 checked={!!checked[todo.id]}

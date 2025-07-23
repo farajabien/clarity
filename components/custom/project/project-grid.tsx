@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { Project } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +28,8 @@ export function ProjectGrid({ category }: ProjectGridProps) {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   
   const projectsByCategory = useMemo(() => 
-    Object.values(projects).filter(
-      project => project.category === category && !project.archived
+    Object.values(projects).filter((project: Project) =>
+      project.category === category && !project.archived
     ),
     [projects, category]
   );

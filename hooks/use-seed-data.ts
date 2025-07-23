@@ -203,9 +203,9 @@ export const useSeedData = () => {
     // Set today's review
     const today = new Date().toISOString().split("T")[0];
     const activeTodos = Object.values(store.todos).filter(
-      (todo) => !todo.completed
+      (todo: Todo) => !todo.completed
     );
-    const todayTodoIds = activeTodos.slice(0, 3).map((todo) => todo.id);
+    const todayTodoIds = activeTodos.slice(0, 3).map((todo: Todo) => todo.id);
     store.setDailyReview(today, todayTodoIds);
 
     console.log("Demo data seeded successfully!");

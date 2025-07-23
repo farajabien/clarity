@@ -29,6 +29,7 @@ import {
   FolderOpen
 } from "lucide-react";
 import { format, isBefore } from "date-fns";
+import type { Todo } from "@/lib/types";
 
 const tabs = [
   { key: "all", label: "All" },
@@ -203,7 +204,7 @@ export function TodosDataTable() {
   // Get all todos - memoize even before hydration
   const allTodos = useMemo(() => {
     if (!isHydrated) return [];
-    return Object.values(todos);
+    return Object.values(todos) as Todo[];
   }, [todos, isHydrated]);
 
   // Filter todos by tab - memoize even before hydration

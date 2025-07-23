@@ -27,7 +27,7 @@ import {
   Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Project } from "@/lib/types";
+import { Project, Todo } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
 import { toast } from "sonner";
@@ -91,8 +91,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const isOverdue = project?.dueDate && new Date(project.dueDate) < new Date();
 
   // Calculate project progress based on todos
-  const projectTodos = Object.values(todos).filter(todo => todo.projectId === project.id);
-  const completedTodos = projectTodos.filter(todo => todo.completed);
+  const projectTodos = Object.values(todos).filter((todo: Todo) => todo.projectId === project.id);
+  const completedTodos = projectTodos.filter((todo: Todo) => todo.completed);
   const actualProgress = projectTodos.length > 0 ? Math.round((completedTodos.length / projectTodos.length) * 100) : 0;
 
   const handleStatusChange = (newStatus: Project["status"]) => {

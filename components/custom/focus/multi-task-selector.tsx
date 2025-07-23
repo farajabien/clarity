@@ -129,7 +129,7 @@ export function MultiTaskSelector({
   const handleSelectAll = () => {
     const selectableTasks = filteredTodos
       .slice(0, maxTasks)
-      .map((todo) => todo.id);
+      .map((todo: Todo) => todo.id);
     setLocalSelectedTasks(selectableTasks);
     onTasksSelected?.(selectableTasks);
   };
@@ -246,7 +246,7 @@ export function MultiTaskSelector({
           <ScrollArea className="h-[300px]">
             <div className="space-y-2">
               {filteredTodos.length > 0 ? (
-                filteredTodos.map((todo) => {
+                filteredTodos.map((todo: Todo) => {
                   const project = projects[todo.projectId] || {
                     title: "Unassigned",
                     category: "personal",

@@ -4,8 +4,15 @@ import React, { createContext, useContext } from "react";
 import { useAuth } from "@/lib/instant";
 import { db } from "@/lib/instant";
 
+interface User {
+  id: string;
+  email: string;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
 interface AuthContextType {
-  user: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  user: User | null;
   isLoading: boolean;
   signInWithOTP: (email: string) => Promise<void>;
   verifyOTP: (email: string, code: string) => Promise<void>;
@@ -30,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
   const value = {
-    user,
+    user: user || null,
     isLoading,
     signInWithOTP,
     verifyOTP,

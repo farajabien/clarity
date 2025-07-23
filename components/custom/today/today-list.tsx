@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
+import { Todo } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Table,
@@ -39,7 +40,7 @@ export function TodayList() {
     if (!isHydrated) return [];
     
     const today = new Date();
-    return Object.values(todos).filter(todo => {
+    return Object.values(todos).filter((todo: Todo) => {
       // Include todos due today, overdue, or high priority ones without due dates
       if (todo.completed) return false;
       

@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
-import { Todo } from "@/lib/types";
+import { Todo, Project } from "@/lib/types";
 import { MoreHorizontal, Edit, Trash, Check, Calendar } from "lucide-react";
 import { toast } from "sonner";
 
@@ -167,7 +167,7 @@ export function TaskActions({ todo, showTodayTag = true }: TaskActionsProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {Object.values(projects).map((project) => (
+                  {Object.values(projects).map((project: Project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.title}
                     </SelectItem>

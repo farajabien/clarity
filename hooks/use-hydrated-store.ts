@@ -2,16 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore } from "./use-app-store";
-import type { AppState } from "@/lib/types";
+import type { AppStore } from "./use-app-store";
 
 // Explicitly type the return to ensure projects and todos are always present
-type HydratedStore = AppState & {
+type HydratedStore = AppStore & {
   isHydrated: boolean;
-  isOnline: boolean;
-  lastSync: string | null;
-  syncInProgress: boolean;
-  // Include all the store actions
-  [key: string]: any;
 };
 
 /**

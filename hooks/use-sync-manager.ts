@@ -14,16 +14,18 @@ export function useSyncManager() {
   const store = useAppStore();
 
   // Query snapshots for current user
-  const { data, isLoading, error } = useQuery({
-    snapshots: {
-      $: {
-        where: {
-          userId: user?.id,
+  const { data, isLoading, error } = useQuery(
+    user?.id ? {
+      snapshots: {
+        $: {
+          where: {
+            userId: user.id,
+          },
+          limit: 1,
         },
-        limit: 1,
       },
-    },
-  });
+    } : null
+  );
 
   // Sync from cloud to local state when data is available
   useEffect(() => {
