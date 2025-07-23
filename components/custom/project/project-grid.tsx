@@ -35,10 +35,10 @@ export function ProjectGrid({ category }: ProjectGridProps) {
   );
 
   const filteredProjects = useMemo(() => 
-    projectsByCategory.filter(project => {
+    projectsByCategory.filter((project: Project) => {
       const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                           project.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = statusFilter === "all" || project.status === statusFilter;
       const matchesPriority = priorityFilter === "all" || project.priority === priorityFilter;
       
