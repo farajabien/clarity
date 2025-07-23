@@ -9,10 +9,10 @@ import { ProjectGrid } from "@/components/custom/project";
 import { useHydratedStore } from "@/hooks/use-hydrated-store";
 import { useMemo } from "react";
 import Link from "next/link";
-import type { Project, Todo } from "@/lib/types";
+import type { Project, Todo, AppState } from "@/lib/types";
 
 export function DashboardClient() {
-  const { projects, todos, isHydrated } = useHydratedStore();
+  const { projects, todos, isHydrated } = useHydratedStore() as AppState & { isHydrated: boolean };
 
   const stats = useMemo(() => {
     if (!isHydrated) {
