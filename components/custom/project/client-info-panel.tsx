@@ -52,7 +52,7 @@ export function ClientInfoPanel() {
   const { projects, isHydrated } = useHydratedStore() as AppState & { isHydrated: boolean };
   
   // Get client projects (projects with "client" category)
-  const clientProjects = !isHydrated ? [] : Object.values(projects).filter((p: Project) => p.category === "client");
+  const clientProjects = !isHydrated ? [] : (Object.values(projects) as Project[]).filter((p: Project) => p.category === "client");
   const totalRevenue = clientProjects.reduce((sum, p) => sum + (p.budget || 0), 0);
 
   // Create a client from project data or use defaults
@@ -69,7 +69,7 @@ export function ClientInfoPanel() {
     totalProjects: clientProjects.length,
     totalRevenue,
     startDate: clientProjects.length > 0 
-      ? clientProjects.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0].createdAt.split('T')[0]
+      ? clientProjects.sort((a: Project, b: Project) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0].createdAt.split('T')[0]
       : new Date().toISOString().split('T')[0],
     notes: clientProjects.length > 0 
       ? `Managing ${clientProjects.length} client projects with total budget of $${totalRevenue.toLocaleString()}`
